@@ -1,581 +1,867 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dot Morph Tool</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Inter, Arial, sans-serif;
-      background: #171717;
-      color: #fff;
-    }
-    .app {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 40px;
-      padding: 40px;
-    }
-    .panel {
-      width: 340px;
-      background: #000;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 32px;
-      padding: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-    }
-    .section { margin-bottom: 22px; }
-    .section.border { padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.08); }
-    .btn {
-      width: 100%;
-      border: 0;
-      border-radius: 14px;
-      padding: 12px 14px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: .2s ease;
-    }
-    .btn:hover { opacity: 0.92; }
-    .btn-primary { background: #fff; color: #000; }
-    .btn-accent { background: #7c3aed; color: #fff; }
-    .btn-secondary {
-      background: transparent;
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.16);
-    }
-    .btn-row { display: flex; gap: 10px; }
-    .file-meta, .status, .hint {
-      font-size: 12px;
-      color: rgba(255,255,255,0.5);
-      line-height: 1.4;
-    }
-    .status { min-height: 18px; }
-    .control { margin-bottom: 16px; }
-    .control-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-      font-size: 11px;
-      color: rgba(255,255,255,0.6);
-      letter-spacing: 0.18em;
-    }
-    input[type="range"] {
-      width: 100%;
-      accent-color: #7c3aed;
-    }
-    .toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 11px;
-      color: rgba(255,255,255,0.6);
-      letter-spacing: 0.18em;
-      margin-bottom: 12px;
-    }
-    .toggle {
-      width: 44px;
-      height: 24px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.14);
-      position: relative;
-      cursor: pointer;
-      border: 0;
-    }
-    .toggle::after {
-      content: "";
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: #fff;
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      transition: transform .2s ease;
-    }
-    .toggle.active { background: #7c3aed; }
-    .toggle.active::after { transform: translateX(20px); }
-    .palette-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .palette-grid input[type="color"],
-    .palette-grid input[type="text"] {
-      width: 100%;
-      height: 40px;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.05);
-      color: #fff;
-      padding: 0 10px;
-    }
-    .stage {
-      width: 720px;
-      height: 720px;
-      background: #e5e5e5;
-      border-radius: 32px;
-      overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-    .placeholder {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 40px;
-      color: rgba(0,0,0,0.45);
-      font-size: 14px;
-    }
-    canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    @media (max-width: 1200px) {
-      .app { flex-direction: column; }
-      .stage { width: min(90vw, 720px); height: min(90vw, 720px); }
-    }
-  </style>
-</head>
-<body>
-  <div class="app">
-    <div class="panel">
-      <div class="section">
-        <button class="btn btn-primary" id="chooseFileBtn">Выбрать файл</button>
-        <input id="fileInput" type="file" accept="image/*" hidden />
-        <div class="file-meta" id="fileMeta">PNG, JPG, WEBP</div>
-      </div>
-
-      <div class="section">
-        <div class="control">
-          <div class="control-head"><span>RESOLUTION</span><span id="resolutionValue">7</span></div>
-          <input id="resolution" type="range" min="1" max="8" step="1" value="7" />
-        </div>
-        <div class="control">
-          <div class="control-head"><span>SPACING</span><span id="spacingValue">2</span></div>
-          <input id="spacing" type="range" min="1" max="8" step="1" value="2" />
-        </div>
-        <div class="control">
-          <div class="control-head"><span>SIZE</span><span id="sizeValue">2</span></div>
-          <input id="size" type="range" min="1" max="8" step="1" value="2" />
-        </div>
-        <div class="control">
-          <div class="control-head"><span>GRAIN</span><span id="grainValue">1</span></div>
-          <input id="grain" type="range" min="1" max="8" step="1" value="1" />
-        </div>
-        <div class="control">
-          <div class="control-head"><span>DOT DENSITY</span><span id="dotDensityValue">8</span></div>
-          <input id="dotDensity" type="range" min="1" max="8" step="1" value="8" />
-        </div>
-        <div class="control">
-          <div class="control-head"><span>ANIMATION</span><span id="durationValue">3</span></div>
-          <input id="duration" type="range" min="1" max="8" step="1" value="3" />
-        </div>
-      </div>
-
-      <div class="section border">
-        <div class="control">
-          <div class="control-head"><span>IMAGE OPACITY</span><span id="opacityValue">3</span></div>
-          <input id="opacity" type="range" min="1" max="8" step="1" value="3" />
-        </div>
-        <div class="control">
-          <div class="control-head"><span>IMAGE BLUR</span><span id="blurValue">4</span></div>
-          <input id="blur" type="range" min="1" max="8" step="1" value="4" />
-        </div>
-      </div>
-
-      <div class="section border">
-        <div class="toggle-row">
-          <span>SHOW IMAGE</span>
-          <button class="toggle active" id="showImageToggle"></button>
-        </div>
-      </div>
-
-      <div class="section border">
-        <div class="toggle-row">
-          <span>PALETTE</span>
-          <button class="toggle" id="paletteToggle"></button>
-        </div>
-        <div class="palette-grid">
-          <input type="color" id="colorA" value="#ffe600" />
-          <input type="color" id="colorB" value="#5a4a00" />
-          <input type="text" id="colorAInput" value="#ffe600" placeholder="#ffe600" />
-          <input type="text" id="colorBInput" value="#5a4a00" placeholder="#5a4a00" />
-        </div>
-        <div class="hint" style="margin-top:8px;">Можно менять цвета и через пикер, и через HEX-коды.</div>
-      </div>
-
-      <div class="section border">
-        <div class="control-head" style="margin-bottom:10px;"><span>ANIMATION</span></div>
-        <div class="btn-row">
-          <button class="btn btn-primary" id="previewBtn">Preview</button>
-          <button class="btn btn-accent" id="webmBtn">WEBM</button>
-        </div>
-      </div>
-
-      <div class="section border">
-        <div class="control-head" style="margin-bottom:10px;"><span>EXPORT</span></div>
-        <div class="btn-row">
-          <button class="btn btn-secondary" id="svgBtn">SVG</button>
-          <button class="btn btn-secondary" id="pngBtn">PNG</button>
-        </div>
-      </div>
-
-      <div class="status" id="status">Загрузи изображение — справа будет одна сцена: картинка на фоне и точки поверх.</div>
-    </div>
-
-    <div class="stage">
-      <div class="placeholder" id="placeholder">Здесь появится одна сцена: картинка в фоне и точки поверх</div>
-      <canvas id="canvas" width="720" height="720"></canvas>
-    </div>
-  </div>
-
-  <script>
-    const state = {
-      img: null,
-      fileName: "",
-      resolution: 7,
-      spacing: 2,
-      size: 2,
-      grain: 1,
-      opacity: 3,
-      blur: 4,
-      dotDensity: 8,
-      duration: 3,
-      showImage: true,
-      usePalette: false,
-      colorA: "#ffe600",
-      colorB: "#5a4a00",
-      colorAInput: "#ffe600",
-      colorBInput: "#5a4a00",
-      isAnimating: false,
-      isRecording: false,
-    };
-
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-    const fileInput = document.getElementById("fileInput");
-    const fileMeta = document.getElementById("fileMeta");
-    const statusEl = document.getElementById("status");
-    const placeholder = document.getElementById("placeholder");
-
-    const recorderState = { recorder: null, chunks: [] };
-
-    function setStatus(text) {
-      statusEl.textContent = text;
-    }
-
-    function normalizeHex(value) {
-      const raw = String(value || "").trim().replace(/^#/, "");
-      if (/^[0-9a-fA-F]{6}$/.test(raw)) return `#${raw.toLowerCase()}`;
-      if (/^[0-9a-fA-F]{3}$/.test(raw)) {
-        return `#${raw.split("").map(ch => ch + ch).join("").toLowerCase()}`;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Halftone Tool</title>
+    <style>
+      :root {
+        --bg: #f5f5f5;
+        --card: #ffffff;
+        --line: #e5e7eb;
+        --text: #111111;
+        --muted: #6b7280;
+        --soft: #f9fafb;
+        --accent: #111111;
       }
-      return null;
-    }
 
-    function hexToRgb(hex) {
-      const normalized = normalizeHex(hex) || "#000000";
-      const clean = normalized.replace("#", "");
-      const num = parseInt(clean, 16);
-      return {
-        r: (num >> 16) & 255,
-        g: (num >> 8) & 255,
-        b: num & 255,
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .app {
+        min-height: 100vh;
+        padding: 24px;
+      }
+
+      .layout {
+        max-width: 1240px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        gap: 24px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+      }
+
+      .sidebar { padding: 22px; }
+
+      .title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 18px;
+      }
+
+      .spark {
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #111111, #8b8b8b);
+      }
+
+      .section { margin-bottom: 22px; }
+
+      .label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .upload {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        min-height: 56px;
+        border-radius: 16px;
+        border: 1px dashed #cbd5e1;
+        background: var(--soft);
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.2s ease;
+      }
+
+      .upload:hover { background: #f1f5f9; }
+      input[type="file"] { display: none; }
+
+      .row { margin-bottom: 14px; }
+
+      .row-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+        font-size: 13px;
+      }
+
+      .value { color: var(--muted); }
+      input[type="range"] { width: 100%; }
+
+      .select,
+      .button,
+      .color-input,
+      .hex-input {
+        width: 100%;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: white;
+        min-height: 44px;
+        padding: 0 14px;
+        font-size: 14px;
+      }
+
+      .button {
+        cursor: pointer;
+        background: var(--accent);
+        color: white;
+        border: none;
+        font-weight: 600;
+      }
+
+      .button.secondary {
+        background: white;
+        color: var(--text);
+        border: 1px solid var(--line);
+      }
+
+      .button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      .button-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 52px;
+        gap: 8px;
+      }
+
+      .panel { padding: 16px; }
+
+      .preview {
+        min-height: 640px;
+        border-radius: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        background: #e5e5e5;
+      }
+
+      .preview.transparent {
+        background-image:
+          linear-gradient(45deg, #f2f2f2 25%, #e7e7e7 25%, #e7e7e7 50%, #f2f2f2 50%, #f2f2f2 75%, #e7e7e7 75%, #e7e7e7 100%);
+        background-size: 24px 24px;
+      }
+
+      canvas {
+        max-width: 100%;
+        height: auto;
+        border-radius: 22px;
+      }
+
+      .placeholder {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 18px;
+        background: var(--soft);
+        border: 1px solid var(--line);
+      }
+
+      .toggle small,
+      .note { color: var(--muted); }
+
+      .custom-palette {
+        padding: 14px;
+        border-radius: 18px;
+        background: var(--soft);
+        border: 1px solid var(--line);
+      }
+
+      .color-row {
+        display: grid;
+        grid-template-columns: 52px 1fr;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .color-stack {
+        display: grid;
+        grid-template-columns: 52px 1fr;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .color-input {
+        padding: 4px;
+        height: 44px;
+      }
+
+      .hex-input {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+
+      .status {
+        position: absolute;
+        right: 16px;
+        top: 16px;
+        background: rgba(255, 255, 255, 0.82);
+        backdrop-filter: blur(8px);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 12px;
+        color: #4b5563;
+      }
+
+      @media (max-width: 980px) {
+        .layout { grid-template-columns: 1fr; }
+        .preview { min-height: 500px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="layout">
+        <div class="card sidebar">
+          <div class="title">
+            <div class="spark"></div>
+            <span>Halftone Tool</span>
+          </div>
+
+          <div class="section">
+            <label class="label">Изображение</label>
+            <label class="upload">
+              <span>Загрузить файл</span>
+              <input id="fileInput" type="file" accept="image/*" />
+            </label>
+          </div>
+
+          <div class="section">
+            <label class="label">Палитра</label>
+            <select id="palette" class="select">
+              <option value="original">Original</option>
+              <option value="warm">Warm</option>
+              <option value="lime">Lime</option>
+              <option value="mono">Mono</option>
+              <option value="ocean">Ocean</option>
+              <option value="candy">Candy</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+
+          <div id="customPalette" class="section custom-palette" style="display: none;">
+            <div class="row">
+              <label class="label">Тёмный цвет</label>
+              <div class="color-stack">
+                <input id="customShadow" class="color-input" type="color" value="#2d1700" />
+                <input id="customShadowHex" class="hex-input" type="text" value="#2d1700" spellcheck="false" />
+              </div>
+            </div>
+            <div class="row">
+              <label class="label">Средний цвет</label>
+              <div class="color-stack">
+                <input id="customMid" class="color-input" type="color" value="#d9ff1f" />
+                <input id="customMidHex" class="hex-input" type="text" value="#d9ff1f" spellcheck="false" />
+              </div>
+            </div>
+            <div class="row">
+              <label class="label">Светлый цвет</label>
+              <div class="color-stack">
+                <input id="customLight" class="color-input" type="color" value="#fff7b0" />
+                <input id="customLightHex" class="hex-input" type="text" value="#fff7b0" spellcheck="false" />
+              </div>
+            </div>
+            <div class="note">Можно вводить hex-коды вручную, например #B8FF2A. Тени берут первый цвет, средние тона — второй, светлые участки — третий.</div>
+          </div>
+
+          <div class="section">
+            <div class="row">
+              <div class="row-top"><span>Шаг точек</span><span id="dotSpacingValue" class="value">12</span></div>
+              <input id="dotSpacing" type="range" min="4" max="28" step="1" value="12" />
+            </div>
+            <div class="row">
+              <div class="row-top"><span>Размер точек</span><span id="maxDotSizeValue" class="value">10</span></div>
+              <input id="maxDotSize" type="range" min="2" max="18" step="1" value="10" />
+            </div>
+            <div class="row">
+              <div class="row-top"><span>Blur</span><span id="blurAmountValue" class="value">2</span></div>
+              <input id="blurAmount" type="range" min="0" max="10" step="0.5" value="2" />
+            </div>
+            <div class="row">
+              <div class="row-top"><span>Glow</span><span id="glowAmountValue" class="value">10</span></div>
+              <input id="glowAmount" type="range" min="0" max="30" step="1" value="10" />
+            </div>
+            <div class="row">
+              <div class="row-top"><span>Noise</span><span id="noiseAmountValue" class="value">0.08</span></div>
+              <input id="noiseAmount" type="range" min="0" max="0.4" step="0.01" value="0.08" />
+            </div>
+            <div class="row">
+              <div class="row-top"><span>Удаление светлого фона</span><span id="luminanceCutoffValue" class="value">242</span></div>
+              <input id="luminanceCutoff" type="range" min="180" max="255" step="1" value="242" />
+            </div>
+            <div class="row">
+              <div class="row-top"><span>Alpha threshold</span><span id="alphaCutoffValue" class="value">0.08</span></div>
+              <input id="alphaCutoff" type="range" min="0" max="0.5" step="0.01" value="0.08" />
+            </div>
+            <div class="row" id="backgroundGrayWrap">
+              <div class="row-top"><span>Фон</span><span id="backgroundGrayValue" class="value">228</span></div>
+              <input id="backgroundGray" type="range" min="180" max="245" step="1" value="228" />
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="toggle">
+              <div>
+                <div>Анимация сборки</div>
+                <small>Точки собираются в форму</small>
+              </div>
+              <input id="animationEnabled" type="checkbox" checked />
+            </div>
+          </div>
+
+          <div id="animationControls" class="section custom-palette">
+            <div class="row">
+              <div class="row-top"><span>Скорость / длительность</span><span id="animationDurationValue" class="value">2.2 s</span></div>
+              <input id="animationDuration" type="range" min="0.4" max="6" step="0.1" value="2.2" />
+            </div>
+            <div class="row">
+              <div class="row-top"><span>Сила разлёта точек</span><span id="scatterStrengthValue" class="value">180 px</span></div>
+              <input id="scatterStrength" type="range" min="40" max="420" step="10" value="180" />
+            </div>
+            <div class="toggle" style="margin-bottom: 12px;">
+              <div>
+                <div>Автоповтор</div>
+                <small>Проигрывать анимацию по кругу</small>
+              </div>
+              <input id="autoReplay" type="checkbox" />
+            </div>
+            <div class="button-row">
+              <button id="playButton" class="button secondary">Запустить</button>
+              <button id="stopButton" class="button secondary">Стоп</button>
+              <button id="resetButton" class="button secondary">↺</button>
+            </div>
+            <div style="margin-top: 10px;">
+              <button id="exportAnimationButton" class="button secondary">Выгрузить анимацию WEBM</button>
+            </div>
+            <div class="note" style="margin-top: 8px;">Экспорт сохраняет один прогон анимации как .webm прямо из браузера.</div>
+          </div>
+
+          <div class="section">
+            <div class="toggle">
+              <div>
+                <div>Прозрачный фон</div>
+                <small>Оставить только фигуру</small>
+              </div>
+              <input id="transparentBg" type="checkbox" />
+            </div>
+          </div>
+
+          <button id="downloadButton" class="button">Скачать PNG</button>
+        </div>
+
+        <div class="card panel">
+          <div id="preview" class="preview">
+            <canvas id="outputCanvas"></canvas>
+            <div id="placeholder" class="placeholder">Загрузи изображение</div>
+            <div id="status" class="status" style="display: none;">ready</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const state = {
+        imageSrc: null,
+        image: null,
+        points: [],
+        rafId: null,
+        animationStart: 0,
+        isAnimating: false,
+        exportInProgress: false,
       };
-    }
 
-    function mix(a, b, t) {
-      return {
-        r: a.r + (b.r - a.r) * t,
-        g: a.g + (b.g - a.g) * t,
-        b: a.b + (b.b - a.b) * t,
+      const elements = {
+        fileInput: document.getElementById("fileInput"),
+        palette: document.getElementById("palette"),
+        customPalette: document.getElementById("customPalette"),
+        customShadow: document.getElementById("customShadow"),
+        customMid: document.getElementById("customMid"),
+        customLight: document.getElementById("customLight"),
+        customShadowHex: document.getElementById("customShadowHex"),
+        customMidHex: document.getElementById("customMidHex"),
+        customLightHex: document.getElementById("customLightHex"),
+        dotSpacing: document.getElementById("dotSpacing"),
+        maxDotSize: document.getElementById("maxDotSize"),
+        blurAmount: document.getElementById("blurAmount"),
+        glowAmount: document.getElementById("glowAmount"),
+        noiseAmount: document.getElementById("noiseAmount"),
+        luminanceCutoff: document.getElementById("luminanceCutoff"),
+        alphaCutoff: document.getElementById("alphaCutoff"),
+        backgroundGray: document.getElementById("backgroundGray"),
+        animationEnabled: document.getElementById("animationEnabled"),
+        animationControls: document.getElementById("animationControls"),
+        animationDuration: document.getElementById("animationDuration"),
+        scatterStrength: document.getElementById("scatterStrength"),
+        autoReplay: document.getElementById("autoReplay"),
+        transparentBg: document.getElementById("transparentBg"),
+        backgroundGrayWrap: document.getElementById("backgroundGrayWrap"),
+        playButton: document.getElementById("playButton"),
+        stopButton: document.getElementById("stopButton"),
+        resetButton: document.getElementById("resetButton"),
+        exportAnimationButton: document.getElementById("exportAnimationButton"),
+        downloadButton: document.getElementById("downloadButton"),
+        outputCanvas: document.getElementById("outputCanvas"),
+        preview: document.getElementById("preview"),
+        placeholder: document.getElementById("placeholder"),
+        status: document.getElementById("status"),
       };
-    }
 
-    function buildScene(image) {
-      const s = 720;
-      const sampleCanvas = document.createElement("canvas");
-      const sampleCtx = sampleCanvas.getContext("2d", { willReadFrequently: true });
-      sampleCanvas.width = s;
-      sampleCanvas.height = s;
+      const valueTargets = {
+        dotSpacing: document.getElementById("dotSpacingValue"),
+        maxDotSize: document.getElementById("maxDotSizeValue"),
+        blurAmount: document.getElementById("blurAmountValue"),
+        glowAmount: document.getElementById("glowAmountValue"),
+        noiseAmount: document.getElementById("noiseAmountValue"),
+        luminanceCutoff: document.getElementById("luminanceCutoffValue"),
+        alphaCutoff: document.getElementById("alphaCutoffValue"),
+        backgroundGray: document.getElementById("backgroundGrayValue"),
+        animationDuration: document.getElementById("animationDurationValue"),
+        scatterStrength: document.getElementById("scatterStrengthValue"),
+      };
 
-      const scale = Math.min(s / image.width, s / image.height);
-      const drawWidth = image.width * scale;
-      const drawHeight = image.height * scale;
-      const offsetX = (s - drawWidth) / 2;
-      const offsetY = (s - drawHeight) / 2;
+      function getControls() {
+        return {
+          palette: elements.palette.value,
+          customShadow: elements.customShadow.value,
+          customMid: elements.customMid.value,
+          customLight: elements.customLight.value,
+          dotSpacing: Number(elements.dotSpacing.value),
+          maxDotSize: Number(elements.maxDotSize.value),
+          blurAmount: Number(elements.blurAmount.value),
+          glowAmount: Number(elements.glowAmount.value),
+          noiseAmount: Number(elements.noiseAmount.value),
+          luminanceCutoff: Number(elements.luminanceCutoff.value),
+          alphaCutoff: Number(elements.alphaCutoff.value),
+          backgroundGray: Number(elements.backgroundGray.value),
+          animationEnabled: elements.animationEnabled.checked,
+          animationDuration: Number(elements.animationDuration.value),
+          scatterStrength: Number(elements.scatterStrength.value),
+          autoReplay: elements.autoReplay.checked,
+          transparentBg: elements.transparentBg.checked,
+        };
+      }
 
-      sampleCtx.clearRect(0, 0, s, s);
-      sampleCtx.fillStyle = "#e5e5e5";
-      sampleCtx.fillRect(0, 0, s, s);
-      sampleCtx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
+      function updateReadouts() {
+        valueTargets.dotSpacing.textContent = elements.dotSpacing.value;
+        valueTargets.maxDotSize.textContent = elements.maxDotSize.value;
+        valueTargets.blurAmount.textContent = elements.blurAmount.value;
+        valueTargets.glowAmount.textContent = elements.glowAmount.value;
+        valueTargets.noiseAmount.textContent = Number(elements.noiseAmount.value).toFixed(2);
+        valueTargets.luminanceCutoff.textContent = elements.luminanceCutoff.value;
+        valueTargets.alphaCutoff.textContent = Number(elements.alphaCutoff.value).toFixed(2);
+        valueTargets.backgroundGray.textContent = elements.backgroundGray.value;
+        valueTargets.animationDuration.textContent = `${Number(elements.animationDuration.value).toFixed(1)} s`;
+        valueTargets.scatterStrength.textContent = `${elements.scatterStrength.value} px`;
+        elements.customPalette.style.display = elements.palette.value === "custom" ? "block" : "none";
+        elements.animationControls.style.display = elements.animationEnabled.checked ? "block" : "none";
+        elements.backgroundGrayWrap.style.display = elements.transparentBg.checked ? "none" : "block";
+        elements.preview.classList.toggle("transparent", elements.transparentBg.checked);
+        elements.exportAnimationButton.disabled = state.exportInProgress || !state.image;
+      }
 
-      const data = sampleCtx.getImageData(0, 0, s, s).data;
-      const step = Math.max(4, 16 - state.dotDensity * 1.25 - state.spacing);
-      const threshold = 255 - state.resolution * 13;
-      const radius = Math.max(1.2, state.size * 1.9);
-      const dots = [];
+      function normalizeHex(value, fallback) {
+        const cleaned = String(value || "").trim();
+        const withHash = cleaned.startsWith("#") ? cleaned : `#${cleaned}`;
+        return /^#[0-9a-fA-F]{6}$/.test(withHash) ? withHash.toLowerCase() : fallback;
+      }
 
-      for (let y = 0; y < s; y += step) {
-        for (let x = 0; x < s; x += step) {
-          const sx = Math.max(0, Math.min(s - 1, Math.floor(x)));
-          const sy = Math.max(0, Math.min(s - 1, Math.floor(y)));
-          const i = (sy * s + sx) * 4;
-          const r = data[i];
-          const g = data[i + 1];
-          const b = data[i + 2];
-          const a = data[i + 3];
+      function syncColorPair(colorInput, hexInput) {
+        const valid = normalizeHex(hexInput.value, colorInput.value);
+        hexInput.value = valid;
+        colorInput.value = valid;
+      }
 
-          if (a < 10) continue;
+      function hexToRgb(hex) {
+        const normalized = hex.replace("#", "");
+        const safeHex = normalized.length === 3
+          ? normalized.split("").map((char) => char + char).join("")
+          : normalized.padEnd(6, "0").slice(0, 6);
+        const value = parseInt(safeHex, 16);
+        return {
+          r: (value >> 16) & 255,
+          g: (value >> 8) & 255,
+          b: value & 255,
+        };
+      }
 
-          const brightness = (r + g + b) / 3;
-          const saturation = Math.max(r, g, b) - Math.min(r, g, b);
-          const shouldKeep = brightness < threshold || saturation > 18;
-          if (!shouldKeep) continue;
+      function mixColor(a, b, t) {
+        return {
+          r: Math.round(a.r + (b.r - a.r) * t),
+          g: Math.round(a.g + (b.g - a.g) * t),
+          b: Math.round(a.b + (b.b - a.b) * t),
+        };
+      }
 
-          let fill;
-          if (state.usePalette) {
-            const t = brightness / 255;
-            const c = mix(hexToRgb(state.colorA), hexToRgb(state.colorB), t);
-            fill = `rgb(${Math.round(c.r)}, ${Math.round(c.g)}, ${Math.round(c.b)})`;
-          } else {
-            fill = `rgb(${r}, ${g}, ${b})`;
-          }
+      function mapCustomPalette(luminance, shadowHex, midHex, lightHex) {
+        const shadow = hexToRgb(shadowHex);
+        const mid = hexToRgb(midHex);
+        const light = hexToRgb(lightHex);
+        const t = Math.max(0, Math.min(1, luminance / 255));
+        if (t < 0.5) return mixColor(shadow, mid, t / 0.5);
+        return mixColor(mid, light, (t - 0.5) / 0.5);
+      }
 
-          dots.push({
-            targetX: x,
-            targetY: y,
-            startX: Math.random() * s,
-            startY: Math.random() * s,
-            jitterX: (Math.random() - 0.5) * state.grain * 1.6,
-            jitterY: (Math.random() - 0.5) * state.grain * 1.6,
-            radius,
-            fill,
-          });
+      function mapPalette(r, g, b, controls) {
+        const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+        switch (controls.palette) {
+          case "warm":
+            return { r: Math.min(255, l * 1.08 + 28), g: Math.min(255, l * 0.86 + 8), b: Math.min(255, l * 0.45) };
+          case "lime":
+            return { r: Math.min(255, l * 0.9 + 18), g: Math.min(255, l * 1.12 + 36), b: Math.min(255, l * 0.22) };
+          case "mono":
+            return { r: l, g: l, b: l };
+          case "ocean":
+            return { r: l * 0.2, g: Math.min(255, l * 0.72 + 22), b: Math.min(255, l * 1.12 + 40) };
+          case "candy":
+            return { r: Math.min(255, l * 1.18 + 34), g: Math.min(255, l * 0.62 + 14), b: Math.min(255, l * 0.95 + 52) };
+          case "custom":
+            return mapCustomPalette(l, controls.customShadow, controls.customMid, controls.customLight);
+          default:
+            return { r, g, b };
         }
       }
 
-      return { s, drawWidth, drawHeight, offsetX, offsetY, dots, image };
-    }
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
 
-    function renderScene(scene, progress = 1) {
-      if (!scene) return;
+      function stopAnimation() {
+        if (state.rafId) {
+          cancelAnimationFrame(state.rafId);
+          state.rafId = null;
+        }
+        state.isAnimating = false;
+        updateStatus();
+      }
 
-      const { s, drawWidth, drawHeight, offsetX, offsetY, dots, image } = scene;
-      canvas.width = s;
-      canvas.height = s;
+      function updateStatus(label) {
+        elements.status.style.display = state.image ? "block" : "none";
+        if (label) {
+          elements.status.textContent = label;
+          return;
+        }
+        if (state.exportInProgress) {
+          elements.status.textContent = "exporting";
+        } else {
+          elements.status.textContent = state.isAnimating ? "animating" : "ready";
+        }
+      }
 
-      ctx.clearRect(0, 0, s, s);
-      ctx.fillStyle = "#e5e5e5";
-      ctx.fillRect(0, 0, s, s);
+      function drawFrame(progress) {
+        const controls = getControls();
+        const canvas = elements.outputCanvas;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
 
-      if (state.showImage) {
+        const eased = easeOutCubic(progress);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (!controls.transparentBg) {
+          ctx.fillStyle = `rgb(${controls.backgroundGray}, ${controls.backgroundGray}, ${controls.backgroundGray})`;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
         ctx.save();
-        ctx.globalAlpha = Math.max(0.05, state.opacity / 8);
-        ctx.filter = `blur(${state.blur}px)`;
-        ctx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
+        ctx.filter = `blur(${controls.blurAmount}px)`;
+
+        for (const point of state.points) {
+          const x = point.startX + (point.targetX - point.startX) * eased;
+          const y = point.startY + (point.targetY - point.startY) * eased;
+          const radius = point.radius * (0.2 + eased * 0.8);
+          const alpha = 0.15 + eased * 0.85;
+
+          ctx.shadowColor = `rgba(${point.r}, ${point.g}, ${point.b}, ${0.42 * eased})`;
+          ctx.shadowBlur = controls.glowAmount;
+          ctx.fillStyle = `rgba(${point.r}, ${point.g}, ${point.b}, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
         ctx.restore();
       }
 
-      ctx.globalAlpha = 1;
-      for (const dot of dots) {
-        const currentX = dot.startX + (dot.targetX - dot.startX) * progress + dot.jitterX;
-        const currentY = dot.startY + (dot.targetY - dot.startY) * progress + dot.jitterY;
-        ctx.beginPath();
-        ctx.fillStyle = dot.fill;
-        ctx.arc(currentX, currentY, dot.radius, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
+      function playAnimation() {
+        if (!state.points.length) return;
+        stopAnimation();
+        state.isAnimating = true;
+        updateStatus();
+        const controls = getControls();
+        state.animationStart = performance.now();
 
-    function draw() {
-      if (!state.img) return;
-      const scene = buildScene(state.img);
-      renderScene(scene, 1);
-    }
+        function tick(now) {
+          const elapsed = (now - state.animationStart) / 1000;
+          const progress = Math.min(1, elapsed / Math.max(0.2, controls.animationDuration));
+          drawFrame(progress);
 
-    function playAnimation({ record = false } = {}) {
-      if (!state.img || state.isAnimating || state.isRecording) return;
+          if (progress < 1) {
+            state.rafId = requestAnimationFrame(tick);
+          } else {
+            state.rafId = null;
+            state.isAnimating = false;
+            updateStatus();
 
-      const scene = buildScene(state.img);
-      const totalMs = state.duration * 1000;
-      const start = performance.now();
-      state.isAnimating = true;
-
-      if (record && canvas.captureStream) {
-        try {
-          const stream = canvas.captureStream(60);
-          const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
-            ? "video/webm;codecs=vp9"
-            : "video/webm";
-          const recorder = new MediaRecorder(stream, { mimeType });
-          recorderState.chunks = [];
-          recorder.ondataavailable = (event) => {
-            if (event.data && event.data.size > 0) recorderState.chunks.push(event.data);
-          };
-          recorder.onstop = () => {
-            const blob = new Blob(recorderState.chunks, { type: mimeType });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = "dot-morph-animation.webm";
-            link.click();
-            URL.revokeObjectURL(url);
-            state.isRecording = false;
-          };
-          recorder.start();
-          recorderState.recorder = recorder;
-          state.isRecording = true;
-        } catch (error) {
-          console.error(error);
-          setStatus("Не получилось записать анимацию в этом браузере. Попробуй Chrome.");
-        }
-      }
-
-      const ease = (t) => 1 - Math.pow(1 - t, 3);
-
-      function tick(now) {
-        const t = Math.min(1, (now - start) / totalMs);
-        renderScene(scene, ease(t));
-        if (t < 1) {
-          requestAnimationFrame(tick);
-        } else {
-          state.isAnimating = false;
-          if (record && recorderState.recorder && recorderState.recorder.state !== "inactive") {
-            setTimeout(() => recorderState.recorder.stop(), 100);
+            if (getControls().autoReplay && !state.exportInProgress) {
+              setTimeout(() => {
+                if (getControls().autoReplay) playAnimation();
+              }, 350);
+            }
           }
-          setStatus(record ? "Анимация записана. Файл WEBM скачивается автоматически." : "Анимация проиграна. Можно выгрузить WEBM.");
+        }
+
+        state.rafId = requestAnimationFrame(tick);
+      }
+
+      async function exportAnimation() {
+        if (!state.points.length || state.exportInProgress) return;
+        if (!(window.MediaRecorder && elements.outputCanvas.captureStream)) {
+          alert("В этом браузере экспорт WEBM не поддерживается. Попробуй Chrome или Edge.");
+          return;
+        }
+
+        const mimeCandidates = [
+          "video/webm;codecs=vp9",
+          "video/webm;codecs=vp8",
+          "video/webm"
+        ];
+        const mimeType = mimeCandidates.find((type) => MediaRecorder.isTypeSupported(type)) || "video/webm";
+
+        stopAnimation();
+        state.exportInProgress = true;
+        updateReadouts();
+        updateStatus();
+
+        const controls = getControls();
+        const stream = elements.outputCanvas.captureStream(60);
+        const recorder = new MediaRecorder(stream, { mimeType });
+        const chunks = [];
+
+        recorder.ondataavailable = (event) => {
+          if (event.data && event.data.size > 0) chunks.push(event.data);
+        };
+
+        recorder.onstop = () => {
+          const blob = new Blob(chunks, { type: mimeType });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "halftone-animation.webm";
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          state.exportInProgress = false;
+          updateReadouts();
+          updateStatus();
+        };
+
+        recorder.start();
+        const start = performance.now();
+        const durationMs = Math.max(200, controls.animationDuration * 1000);
+
+        function step(now) {
+          const progress = Math.min(1, (now - start) / durationMs);
+          drawFrame(progress);
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          } else {
+            setTimeout(() => recorder.stop(), 120);
+          }
+        }
+
+        requestAnimationFrame(step);
+      }
+
+      function buildPointsAndRender() {
+        if (!state.image) return;
+
+        stopAnimation();
+        const controls = getControls();
+        const img = state.image;
+        const canvas = elements.outputCanvas;
+        const maxPreviewWidth = 720;
+        const previewScale = Math.min(1, maxPreviewWidth / img.width);
+        const width = Math.max(1, Math.round(img.width * previewScale));
+        const height = Math.max(1, Math.round(img.height * previewScale));
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const tempCanvas = document.createElement("canvas");
+        tempCanvas.width = width;
+        tempCanvas.height = height;
+        const tempCtx = tempCanvas.getContext("2d", { willReadFrequently: true });
+        if (!tempCtx) return;
+
+        tempCtx.clearRect(0, 0, width, height);
+        tempCtx.drawImage(img, 0, 0, width, height);
+        const src = tempCtx.getImageData(0, 0, width, height).data;
+
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const points = [];
+
+        for (let y = 0; y < height; y += controls.dotSpacing) {
+          for (let x = 0; x < width; x += controls.dotSpacing) {
+            const px = Math.min(width - 1, Math.floor(x));
+            const py = Math.min(height - 1, Math.floor(y));
+            const idx = (py * width + px) * 4;
+
+            const r = src[idx];
+            const g = src[idx + 1];
+            const b = src[idx + 2];
+            const a = src[idx + 3] / 255;
+            const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+            const isNearWhiteBackground = a <= controls.alphaCutoff || luminance >= controls.luminanceCutoff;
+            if (isNearWhiteBackground) continue;
+
+            const darkness = 1 - luminance / 255;
+            const radius = Math.max(0.8, controls.maxDotSize * (0.25 + darkness * 0.9));
+            const jitter = controls.dotSpacing * controls.noiseAmount;
+            const targetX = x + (Math.random() - 0.5) * jitter;
+            const targetY = y + (Math.random() - 0.5) * jitter;
+            const mapped = mapPalette(r, g, b, controls);
+            const angle = Math.random() * Math.PI * 2;
+            const distance = controls.scatterStrength * (0.45 + Math.random() * 0.8);
+            const startX = centerX + Math.cos(angle) * distance + (Math.random() - 0.5) * controls.scatterStrength * 0.35;
+            const startY = centerY + Math.sin(angle) * distance + (Math.random() - 0.5) * controls.scatterStrength * 0.35;
+
+            points.push({
+              targetX,
+              targetY,
+              startX,
+              startY,
+              radius,
+              r: mapped.r,
+              g: mapped.g,
+              b: mapped.b,
+            });
+          }
+        }
+
+        state.points = points;
+        elements.placeholder.style.display = "none";
+        updateReadouts();
+
+        if (controls.animationEnabled) {
+          drawFrame(0);
+          playAnimation();
+        } else {
+          drawFrame(1);
+          updateStatus();
         }
       }
 
-      renderScene(scene, 0);
-      requestAnimationFrame(tick);
-    }
-
-    function exportPNG() {
-      const link = document.createElement("a");
-      link.download = "dot-generator.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    }
-
-    function exportSVG() {
-      setStatus("SVG пока как заглушка. PNG и WEBM уже работают.");
-    }
-
-    function applyHexColor(value, key, inputKey, label) {
-      state[inputKey] = value;
-      const normalized = normalizeHex(value);
-      if (normalized) {
-        state[key] = normalized;
-        document.getElementById(inputKey).value = normalized;
-        setStatus(`${label} обновлён: ${normalized}`);
-        draw();
-      }
-    }
-
-    function bindRange(id, key) {
-      const input = document.getElementById(id);
-      const value = document.getElementById(id + "Value");
-      input.addEventListener("input", (e) => {
-        state[key] = Number(e.target.value);
-        value.textContent = e.target.value;
-        draw();
-      });
-    }
-
-    bindRange("resolution", "resolution");
-    bindRange("spacing", "spacing");
-    bindRange("size", "size");
-    bindRange("grain", "grain");
-    bindRange("dotDensity", "dotDensity");
-    bindRange("duration", "duration");
-    bindRange("opacity", "opacity");
-    bindRange("blur", "blur");
-
-    document.getElementById("chooseFileBtn").addEventListener("click", () => fileInput.click());
-    fileInput.addEventListener("change", (e) => {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-      if (!file.type.startsWith("image/")) {
-        setStatus("Нужно загрузить PNG, JPG или WEBP.");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        const src = String(reader.result || "");
-        const image = new Image();
-        image.onload = () => {
-          state.img = image;
-          state.fileName = file.name;
-          fileMeta.textContent = `Файл: ${file.name}`;
-          placeholder.style.display = "none";
-          setStatus("Изображение загружено. Теперь можно менять цвета через HEX-коды и выгружать анимацию.");
-          draw();
+      function handleFile(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            state.imageSrc = reader.result;
+            state.image = img;
+            buildPointsAndRender();
+          };
+          img.src = reader.result;
         };
-        image.onerror = () => setStatus("Не получилось загрузить изображение. Попробуй другой файл.");
-        image.src = src;
-      };
-      reader.onerror = () => setStatus("Не получилось прочитать файл.");
-      reader.readAsDataURL(file);
-    });
+        reader.readAsDataURL(file);
+      }
 
-    const showImageToggle = document.getElementById("showImageToggle");
-    const paletteToggle = document.getElementById("paletteToggle");
+      function downloadCanvas() {
+        const link = document.createElement("a");
+        link.download = elements.transparentBg.checked ? "halftone-transparent.png" : "halftone-processed.png";
+        link.href = elements.outputCanvas.toDataURL("image/png");
+        link.click();
+      }
 
-    showImageToggle.addEventListener("click", () => {
-      state.showImage = !state.showImage;
-      showImageToggle.classList.toggle("active", state.showImage);
-      draw();
-    });
+      function bindColorInputs(colorInput, hexInput) {
+        colorInput.addEventListener("input", () => {
+          hexInput.value = colorInput.value.toLowerCase();
+          updateReadouts();
+          if (state.image) buildPointsAndRender();
+        });
 
-    paletteToggle.addEventListener("click", () => {
-      state.usePalette = !state.usePalette;
-      paletteToggle.classList.toggle("active", state.usePalette);
-      draw();
-    });
+        hexInput.addEventListener("change", () => {
+          syncColorPair(colorInput, hexInput);
+          updateReadouts();
+          if (state.image) buildPointsAndRender();
+        });
 
-    document.getElementById("colorA").addEventListener("input", (e) => {
-      state.colorA = e.target.value;
-      state.colorAInput = e.target.value;
-      document.getElementById("colorAInput").value = e.target.value;
-      draw();
-    });
+        hexInput.addEventListener("blur", () => {
+          syncColorPair(colorInput, hexInput);
+          updateReadouts();
+        });
+      }
 
-    document.getElementById("colorB").addEventListener("input", (e) => {
-      state.colorB = e.target.value;
-      state.colorBInput = e.target.value;
-      document.getElementById("colorBInput").value = e.target.value;
-      draw();
-    });
+      elements.fileInput.addEventListener("change", (event) => {
+        handleFile(event.target.files && event.target.files[0]);
+      });
 
-    document.getElementById("colorAInput").addEventListener("blur", (e) => {
-      applyHexColor(e.target.value, "colorA", "colorAInput", "Цвет A");
-    });
+      bindColorInputs(elements.customShadow, elements.customShadowHex);
+      bindColorInputs(elements.customMid, elements.customMidHex);
+      bindColorInputs(elements.customLight, elements.customLightHex);
 
-    document.getElementById("colorBInput").addEventListener("blur", (e) => {
-      applyHexColor(e.target.value, "colorB", "colorBInput", "Цвет B");
-    });
+      [
+        elements.palette,
+        elements.dotSpacing,
+        elements.maxDotSize,
+        elements.blurAmount,
+        elements.glowAmount,
+        elements.noiseAmount,
+        elements.luminanceCutoff,
+        elements.alphaCutoff,
+        elements.backgroundGray,
+        elements.animationEnabled,
+        elements.animationDuration,
+        elements.scatterStrength,
+        elements.autoReplay,
+        elements.transparentBg,
+      ].forEach((control) => {
+        control.addEventListener("input", () => {
+          updateReadouts();
+          if (state.image) buildPointsAndRender();
+        });
+        control.addEventListener("change", () => {
+          updateReadouts();
+          if (state.image) buildPointsAndRender();
+        });
+      });
 
-    document.getElementById("previewBtn").addEventListener("click", () => playAnimation());
-    document.getElementById("webmBtn").addEventListener("click", () => playAnimation({ record: true }));
-    document.getElementById("pngBtn").addEventListener("click", exportPNG);
-    document.getElementById("svgBtn").addEventListener("click", exportSVG);
-  </script>
-</body>
+      elements.playButton.addEventListener("click", playAnimation);
+      elements.stopButton.addEventListener("click", stopAnimation);
+      elements.resetButton.addEventListener("click", () => drawFrame(0));
+      elements.exportAnimationButton.addEventListener("click", exportAnimation);
+      elements.downloadButton.addEventListener("click", downloadCanvas);
+
+      syncColorPair(elements.customShadow, elements.customShadowHex);
+      syncColorPair(elements.customMid, elements.customMidHex);
+      syncColorPair(elements.customLight, elements.customLightHex);
+      updateReadouts();
+      updateStatus();
+    </script>
+  </body>
 </html>
