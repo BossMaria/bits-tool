@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Halftone Tool</title>
+    <style>
+      :root {
+        --bg: #f5f5f5;
+        --card: #ffffff;
+        --line: #e5e7eb;
+        --text: #111111;
+        --muted: #6b7280;
+        --soft: #f9fafb;
+        --accent: #111111;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .app {
+        min-height: 100vh;
+        padding: 24px;
+      }
+
+      .layout {
+        max-width: 1240px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        gap: 24px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+      }
+
+      .sidebar {
+        padding: 22px;
+      }
+
+      .title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 18px;
+      }
+
+      .spark {
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #111111, #8b8b8b);
+      }
+
+      .section {
+        margin-bottom: 22px;
+      }
+
+      .label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .upload {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        min-height: 56px;
+        border-radius: 16px;
+        border: 1px dashed #cbd5e1;
+        background: var(--soft);
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.2s ease;
+      }
+
+      .upload:hover {
+        background: #f1f5f9;
+      }
+
+      input[type="file"] {
+        display: none;
+      }
+
+      .row {
+        margin-bottom: 14px;
+      }
+
+      .row-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+        font-size: 13px;
+      }
+
+      .value {
+        color: var(--muted);
+      }
+
+      input[type="range"] {
+        width: 100%;
+      }
+
+      .select,
+      .button,
+      .color-input {
+        width: 100%;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: white;
+        min-height: 44px;
+        padding: 0 14px;
+        font-size: 14px;
+      }
+
+      .button {
+        cursor: pointer;
+        background: var(--accent);
+        color: white;
+        border: none;
+        font-weight: 600;
+      }
+
+      .button.secondary {
+        background: white;
+        color: var(--text);
+        border: 1px solid var(--line);
+      }
+
+      .button-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 52px;
+        gap: 8px;
+      }
+
+      .panel {
+        padding: 16px;
+      }
+
+      .preview {
+        min-height: 640px;
+        border-radius: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        background: #e5e5e5;
+      }
+
+      .preview.transparent {
+        background-image:
+          linear-gradient(45deg, #f2f2f2 25%, #e7e7e7 25%, #e7e7e7 50%, #f2f2f2 50%, #f2f2f2 75%, #e7e7e7 75%, #e7e7e7 100%);
+        background-size: 24px 24px;
+      }
+
+      canvas {
+        max-width: 100%;
+        height: auto;
+        border-radius: 22px;
+      }
+
+      .placeholder {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 18px;
+        background: var(--soft);
+        border: 1px solid var(--line);
+      }
+
+      .toggle small,
+      .note {
+        color: var(--muted);
+      }
+
+      .custom-palette {
+        padding: 14px;
+        border-radius: 18px;
+        background: var(--soft);
+        border: 1px solid var(--line);
+      }
+
+      .color-row {
+        display: grid;
+        grid-template-columns: 52px 1fr;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .color-input {
+        padding: 4px;
+      }
+
+      .status {
+        position: absolute;
+        right: 16px;
+        top: 16px;
+        background: rgba(255, 255, 255, 0.82);
+        backdrop-filter: blur(8px);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 12px;
+        color: #4b5563;
+      }
+
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .preview {
+          min-height: 500px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="layout">
+        <div class="card sidebar">
+          <div class="title">
+            <div class="spark"></div>
+            <span>Halftone Tool</span>
+          </div>
+
+          <div class="section">
+            <label class="label">Изображение</label>
+            <label class="upload">
+              <span>Загрузить файл</span>
+              <input id="fileInput" type="file" accept="image/*" />
+            </label>
+          </div>
+
+          <div class="section">
+            <label class="label">Палитра</label>
+            <select id="palette" class="select">
+              <option value="original">Original</option>
+              <option value="warm">Warm</option>
+              <option value="lime">Lime</option>
+              <option value="mono">Mono</option>
+              <option value="ocean">Ocean</option>
+              <option value="candy">Candy</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+
+          <div id="customPalette" class="section custom-palette" style="display: none;">
+            <div class="row">
+              <label class="label">Тёмный цвет</label>
+              <div class="color-row">
+                <input id="customShadow" class="color-input" type="color" value="#2d1700" />
+                <div id="customShadowValue" class="value">#2d1700</div>
+              </div>
+            </div>
+            <div class="row">
+              <label class="label">Средний цвет</label>
+              <div class="color-row">
+                <input id="customMid" class="color-input" type="color" value="#d9ff1f" />
+                <div id="customMidValue" class="value">#d9ff1f</div>
+              </div>
+            </div>
+            <div class="row">
+              <label class="label">Светлый цвет</label>
+              <div class="color-row">
+                <input id="customLight" class="color-input" type="color" value="#fff7b0" />
+                <div id="customLightValue" class="value">#fff7b0</div>
+              </div>
+            </div>
+            <div class="note">Тени берут первый цвет, средние тона — второй, светлые участки — третий.</div>
+          </div>
+
+          <div class="section">
+            <div class="row">
+              <div class="row-top"><span>Шаг точек</span><span id="dotSpacingValue" class="value">12</span></div>
+              <input id="dotSpacing" type="range" min="4" max="28" step="1" value="12" />
+            </div>
+            <div class="row">
+              <div class="row-top"><span>Размер точек</span><span id="maxDotSizeValue" class="value">10</span></div>
+              <input id="maxDotSize" type="range" min="2" max="18" step="1" value="10" />
+            </div>
+            <div class="row">
+              <div class="row-top"><span>Blur</span><span id="blurAmountValue" class="value">2</span></div>
+              <input id="blurAmount" type="range" min="0" max="10" step="0.5" value="2" />
+            </div>
+            <div class="row">
+              <div class="row-top"><span>Glow</span><span id="glowAmountValue" class="value">10</span></div>
+              <input id="glowAmount" type="range" min="0" max="30" step="1" value="10" />
+            </div>
+            <div class="row">
+              <div class="row-top"><span>Noise</span><span id="noiseAmountValue" class="value">0.08</span></div>
+              <input id="noiseAmount" type="range" min="0" max="0.4" step="0.01" value="0.08" />
+            </div>
+            <div class="row">
+              <div class="row-top"><span>Удаление светлого фона</span><span id="luminanceCutoffValue" class="value">242</span></div>
+              <input id="luminanceCutoff" type="range" min="180" max="255" step="1" value="242" />
+            </div>
+            <div class="row">
+              <div class="row-top"><span>Alpha threshold</span><span id="alphaCutoffValue" class="value">0.08</span></div>
+              <input id="alphaCutoff" type="range" min="0" max="0.5" step="0.01" value="0.08" />
+            </div>
+            <div class="row" id="backgroundGrayWrap">
+              <div class="row-top"><span>Фон</span><span id="backgroundGrayValue" class="value">228</span></div>
+              <input id="backgroundGray" type="range" min="180" max="245" step="1" value="228" />
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="toggle">
+              <div>
+                <div>Анимация сборки</div>
+                <small>Точки собираются в форму</small>
+              </div>
+              <input id="animationEnabled" type="checkbox" checked />
+            </div>
+          </div>
+
+          <div id="animationControls" class="section custom-palette">
+            <div class="row">
+              <div class="row-top"><span>Скорость / длительность</span><span id="animationDurationValue" class="value">2.2 s</span></div>
+              <input id="animationDuration" type="range" min="0.4" max="6" step="0.1" value="2.2" />
+            </div>
+            <div class="row">
+              <div class="row-top"><span>Сила разлёта точек</span><span id="scatterStrengthValue" class="value">180 px</span></div>
+              <input id="scatterStrength" type="range" min="40" max="420" step="10" value="180" />
+            </div>
+            <div class="toggle" style="margin-bottom: 12px;">
+              <div>
+                <div>Автоповтор</div>
+                <small>Проигрывать анимацию по кругу</small>
+              </div>
+              <input id="autoReplay" type="checkbox" />
+            </div>
+            <div class="button-row">
+              <button id="playButton" class="button secondary">Запустить</button>
+              <button id="stopButton" class="button secondary">Стоп</button>
+              <button id="resetButton" class="button secondary">↺</button>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="toggle">
+              <div>
+                <div>Прозрачный фон</div>
+                <small>Оставить только фигуру</small>
+              </div>
+              <input id="transparentBg" type="checkbox" />
+            </div>
+          </div>
+
+          <button id="downloadButton" class="button">Скачать PNG</button>
+        </div>
+
+        <div class="card panel">
+          <div id="preview" class="preview">
+            <canvas id="outputCanvas"></canvas>
+            <div id="placeholder" class="placeholder">Загрузи изображение</div>
+            <div id="status" class="status" style="display: none;">ready</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const state = {
+        imageSrc: null,
+        image: null,
+        points: [],
+        rafId: null,
+        animationStart: 0,
+        isAnimating: false,
+      };
+
+      const elements = {
+        fileInput: document.getElementById("fileInput"),
+        palette: document.getElementById("palette"),
+        customPalette: document.getElementById("customPalette"),
+        customShadow: document.getElementById("customShadow"),
+        customMid: document.getElementById("customMid"),
+        customLight: document.getElementById("customLight"),
+        customShadowValue: document.getElementById("customShadowValue"),
+        customMidValue: document.getElementById("customMidValue"),
+        customLightValue: document.getElementById("customLightValue"),
+        dotSpacing: document.getElementById("dotSpacing"),
+        maxDotSize: document.getElementById("maxDotSize"),
+        blurAmount: document.getElementById("blurAmount"),
+        glowAmount: document.getElementById("glowAmount"),
+        noiseAmount: document.getElementById("noiseAmount"),
+        luminanceCutoff: document.getElementById("luminanceCutoff"),
+        alphaCutoff: document.getElementById("alphaCutoff"),
+        backgroundGray: document.getElementById("backgroundGray"),
+        animationEnabled: document.getElementById("animationEnabled"),
+        animationControls: document.getElementById("animationControls"),
+        animationDuration: document.getElementById("animationDuration"),
+        scatterStrength: document.getElementById("scatterStrength"),
+        autoReplay: document.getElementById("autoReplay"),
+        transparentBg: document.getElementById("transparentBg"),
+        backgroundGrayWrap: document.getElementById("backgroundGrayWrap"),
+        playButton: document.getElementById("playButton"),
+        stopButton: document.getElementById("stopButton"),
+        resetButton: document.getElementById("resetButton"),
+        downloadButton: document.getElementById("downloadButton"),
+        outputCanvas: document.getElementById("outputCanvas"),
+        preview: document.getElementById("preview"),
+        placeholder: document.getElementById("placeholder"),
+        status: document.getElementById("status"),
+      };
+
+      const valueTargets = {
+        dotSpacing: document.getElementById("dotSpacingValue"),
+        maxDotSize: document.getElementById("maxDotSizeValue"),
+        blurAmount: document.getElementById("blurAmountValue"),
+        glowAmount: document.getElementById("glowAmountValue"),
+        noiseAmount: document.getElementById("noiseAmountValue"),
+        luminanceCutoff: document.getElementById("luminanceCutoffValue"),
+        alphaCutoff: document.getElementById("alphaCutoffValue"),
+        backgroundGray: document.getElementById("backgroundGrayValue"),
+        animationDuration: document.getElementById("animationDurationValue"),
+        scatterStrength: document.getElementById("scatterStrengthValue"),
+      };
+
+      function getControls() {
+        return {
+          palette: elements.palette.value,
+          customShadow: elements.customShadow.value,
+          customMid: elements.customMid.value,
+          customLight: elements.customLight.value,
+          dotSpacing: Number(elements.dotSpacing.value),
+          maxDotSize: Number(elements.maxDotSize.value),
+          blurAmount: Number(elements.blurAmount.value),
+          glowAmount: Number(elements.glowAmount.value),
+          noiseAmount: Number(elements.noiseAmount.value),
+          luminanceCutoff: Number(elements.luminanceCutoff.value),
+          alphaCutoff: Number(elements.alphaCutoff.value),
+          backgroundGray: Number(elements.backgroundGray.value),
+          animationEnabled: elements.animationEnabled.checked,
+          animationDuration: Number(elements.animationDuration.value),
+          scatterStrength: Number(elements.scatterStrength.value),
+          autoReplay: elements.autoReplay.checked,
+          transparentBg: elements.transparentBg.checked,
+        };
+      }
+
+      function updateReadouts() {
+        valueTargets.dotSpacing.textContent = elements.dotSpacing.value;
+        valueTargets.maxDotSize.textContent = elements.maxDotSize.value;
+        valueTargets.blurAmount.textContent = elements.blurAmount.value;
+        valueTargets.glowAmount.textContent = elements.glowAmount.value;
+        valueTargets.noiseAmount.textContent = Number(elements.noiseAmount.value).toFixed(2);
+        valueTargets.luminanceCutoff.textContent = elements.luminanceCutoff.value;
+        valueTargets.alphaCutoff.textContent = Number(elements.alphaCutoff.value).toFixed(2);
+        valueTargets.backgroundGray.textContent = elements.backgroundGray.value;
+        valueTargets.animationDuration.textContent = `${Number(elements.animationDuration.value).toFixed(1)} s`;
+        valueTargets.scatterStrength.textContent = `${elements.scatterStrength.value} px`;
+        elements.customShadowValue.textContent = elements.customShadow.value;
+        elements.customMidValue.textContent = elements.customMid.value;
+        elements.customLightValue.textContent = elements.customLight.value;
+        elements.customPalette.style.display = elements.palette.value === "custom" ? "block" : "none";
+        elements.animationControls.style.display = elements.animationEnabled.checked ? "block" : "none";
+        elements.backgroundGrayWrap.style.display = elements.transparentBg.checked ? "none" : "block";
+        elements.preview.classList.toggle("transparent", elements.transparentBg.checked);
+      }
+
+      function hexToRgb(hex) {
+        const normalized = hex.replace("#", "");
+        const safeHex = normalized.length === 3
+          ? normalized.split("").map((char) => char + char).join("")
+          : normalized.padEnd(6, "0").slice(0, 6);
+        const value = parseInt(safeHex, 16);
+        return {
+          r: (value >> 16) & 255,
+          g: (value >> 8) & 255,
+          b: value & 255,
+        };
+      }
+
+      function mixColor(a, b, t) {
+        return {
+          r: Math.round(a.r + (b.r - a.r) * t),
+          g: Math.round(a.g + (b.g - a.g) * t),
+          b: Math.round(a.b + (b.b - a.b) * t),
+        };
+      }
+
+      function mapCustomPalette(luminance, shadowHex, midHex, lightHex) {
+        const shadow = hexToRgb(shadowHex);
+        const mid = hexToRgb(midHex);
+        const light = hexToRgb(lightHex);
+        const t = Math.max(0, Math.min(1, luminance / 255));
+        if (t < 0.5) return mixColor(shadow, mid, t / 0.5);
+        return mixColor(mid, light, (t - 0.5) / 0.5);
+      }
+
+      function mapPalette(r, g, b, controls) {
+        const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+        switch (controls.palette) {
+          case "warm":
+            return { r: Math.min(255, l * 1.08 + 28), g: Math.min(255, l * 0.86 + 8), b: Math.min(255, l * 0.45) };
+          case "lime":
+            return { r: Math.min(255, l * 0.9 + 18), g: Math.min(255, l * 1.12 + 36), b: Math.min(255, l * 0.22) };
+          case "mono":
+            return { r: l, g: l, b: l };
+          case "ocean":
+            return { r: l * 0.2, g: Math.min(255, l * 0.72 + 22), b: Math.min(255, l * 1.12 + 40) };
+          case "candy":
+            return { r: Math.min(255, l * 1.18 + 34), g: Math.min(255, l * 0.62 + 14), b: Math.min(255, l * 0.95 + 52) };
+          case "custom":
+            return mapCustomPalette(l, controls.customShadow, controls.customMid, controls.customLight);
+          default:
+            return { r, g, b };
+        }
+      }
+
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+
+      function stopAnimation() {
+        if (state.rafId) {
+          cancelAnimationFrame(state.rafId);
+          state.rafId = null;
+        }
+        state.isAnimating = false;
+        updateStatus();
+      }
+
+      function updateStatus() {
+        elements.status.style.display = state.image ? "block" : "none";
+        elements.status.textContent = state.isAnimating ? "animating" : "ready";
+      }
+
+      function drawFrame(progress) {
+        const controls = getControls();
+        const canvas = elements.outputCanvas;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        const eased = easeOutCubic(progress);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (!controls.transparentBg) {
+          ctx.fillStyle = `rgb(${controls.backgroundGray}, ${controls.backgroundGray}, ${controls.backgroundGray})`;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        ctx.save();
+        ctx.filter = `blur(${controls.blurAmount}px)`;
+
+        for (const point of state.points) {
+          const x = point.startX + (point.targetX - point.startX) * eased;
+          const y = point.startY + (point.targetY - point.startY) * eased;
+          const radius = point.radius * (0.2 + eased * 0.8);
+          const alpha = 0.15 + eased * 0.85;
+
+          ctx.shadowColor = `rgba(${point.r}, ${point.g}, ${point.b}, ${0.42 * eased})`;
+          ctx.shadowBlur = controls.glowAmount;
+          ctx.fillStyle = `rgba(${point.r}, ${point.g}, ${point.b}, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+
+      function playAnimation() {
+        if (!state.points.length) return;
+        stopAnimation();
+        state.isAnimating = true;
+        updateStatus();
+        const controls = getControls();
+        state.animationStart = performance.now();
+
+        function tick(now) {
+          const elapsed = (now - state.animationStart) / 1000;
+          const progress = Math.min(1, elapsed / Math.max(0.2, controls.animationDuration));
+          drawFrame(progress);
+
+          if (progress < 1) {
+            state.rafId = requestAnimationFrame(tick);
+          } else {
+            state.rafId = null;
+            state.isAnimating = false;
+            updateStatus();
+
+            if (getControls().autoReplay) {
+              setTimeout(() => {
+                if (getControls().autoReplay) playAnimation();
+              }, 350);
+            }
+          }
+        }
+
+        state.rafId = requestAnimationFrame(tick);
+      }
+
+      function buildPointsAndRender() {
+        if (!state.image) return;
+
+        stopAnimation();
+        const controls = getControls();
+        const img = state.image;
+        const canvas = elements.outputCanvas;
+        const maxPreviewWidth = 720;
+        const previewScale = Math.min(1, maxPreviewWidth / img.width);
+        const width = Math.max(1, Math.round(img.width * previewScale));
+        const height = Math.max(1, Math.round(img.height * previewScale));
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const tempCanvas = document.createElement("canvas");
+        tempCanvas.width = width;
+        tempCanvas.height = height;
+        const tempCtx = tempCanvas.getContext("2d", { willReadFrequently: true });
+        if (!tempCtx) return;
+
+        tempCtx.clearRect(0, 0, width, height);
+        tempCtx.drawImage(img, 0, 0, width, height);
+        const src = tempCtx.getImageData(0, 0, width, height).data;
+
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const points = [];
+
+        for (let y = 0; y < height; y += controls.dotSpacing) {
+          for (let x = 0; x < width; x += controls.dotSpacing) {
+            const px = Math.min(width - 1, Math.floor(x));
+            const py = Math.min(height - 1, Math.floor(y));
+            const idx = (py * width + px) * 4;
+
+            const r = src[idx];
+            const g = src[idx + 1];
+            const b = src[idx + 2];
+            const a = src[idx + 3] / 255;
+            const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+            const isNearWhiteBackground = a <= controls.alphaCutoff || luminance >= controls.luminanceCutoff;
+            if (isNearWhiteBackground) continue;
+
+            const darkness = 1 - luminance / 255;
+            const radius = Math.max(0.8, controls.maxDotSize * (0.25 + darkness * 0.9));
+            const jitter = controls.dotSpacing * controls.noiseAmount;
+            const targetX = x + (Math.random() - 0.5) * jitter;
+            const targetY = y + (Math.random() - 0.5) * jitter;
+            const mapped = mapPalette(r, g, b, controls);
+            const angle = Math.random() * Math.PI * 2;
+            const distance = controls.scatterStrength * (0.45 + Math.random() * 0.8);
+            const startX = centerX + Math.cos(angle) * distance + (Math.random() - 0.5) * controls.scatterStrength * 0.35;
+            const startY = centerY + Math.sin(angle) * distance + (Math.random() - 0.5) * controls.scatterStrength * 0.35;
+
+            points.push({
+              targetX,
+              targetY,
+              startX,
+              startY,
+              radius,
+              r: mapped.r,
+              g: mapped.g,
+              b: mapped.b,
+            });
+          }
+        }
+
+        state.points = points;
+        elements.placeholder.style.display = "none";
+
+        if (controls.animationEnabled) {
+          drawFrame(0);
+          playAnimation();
+        } else {
+          drawFrame(1);
+          updateStatus();
+        }
+      }
+
+      function handleFile(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            state.imageSrc = reader.result;
+            state.image = img;
+            buildPointsAndRender();
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function downloadCanvas() {
+        const link = document.createElement("a");
+        link.download = elements.transparentBg.checked ? "halftone-transparent.png" : "halftone-processed.png";
+        link.href = elements.outputCanvas.toDataURL("image/png");
+        link.click();
+      }
+
+      elements.fileInput.addEventListener("change", (event) => {
+        handleFile(event.target.files && event.target.files[0]);
+      });
+
+      [
+        elements.palette,
+        elements.customShadow,
+        elements.customMid,
+        elements.customLight,
+        elements.dotSpacing,
+        elements.maxDotSize,
+        elements.blurAmount,
+        elements.glowAmount,
+        elements.noiseAmount,
+        elements.luminanceCutoff,
+        elements.alphaCutoff,
+        elements.backgroundGray,
+        elements.animationEnabled,
+        elements.animationDuration,
+        elements.scatterStrength,
+        elements.autoReplay,
+        elements.transparentBg,
+      ].forEach((control) => {
+        control.addEventListener("input", () => {
+          updateReadouts();
+          if (state.image) buildPointsAndRender();
+        });
+        control.addEventListener("change", () => {
+          updateReadouts();
+          if (state.image) buildPointsAndRender();
+        });
+      });
+
+      elements.playButton.addEventListener("click", playAnimation);
+      elements.stopButton.addEventListener("click", stopAnimation);
+      elements.resetButton.addEventListener("click", () => drawFrame(0));
+      elements.downloadButton.addEventListener("click", downloadCanvas);
+
+      updateReadouts();
+      updateStatus();
+    </script>
+  </body>
+</html>
