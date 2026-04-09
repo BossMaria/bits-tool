@@ -14,21 +14,14 @@
         --soft: #f9fafb;
         --accent: #111111;
       }
-
       * { box-sizing: border-box; }
-
       body {
         margin: 0;
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         background: var(--bg);
         color: var(--text);
       }
-
-      .app {
-        min-height: 100vh;
-        padding: 24px;
-      }
-
+      .app { min-height: 100vh; padding: 24px; }
       .layout {
         max-width: 1240px;
         margin: 0 auto;
@@ -36,16 +29,13 @@
         grid-template-columns: 340px 1fr;
         gap: 24px;
       }
-
       .card {
         background: var(--card);
         border: 1px solid var(--line);
         border-radius: 28px;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
       }
-
       .sidebar { padding: 22px; }
-
       .title {
         display: flex;
         align-items: center;
@@ -54,23 +44,19 @@
         font-weight: 600;
         margin-bottom: 18px;
       }
-
       .spark {
         width: 18px;
         height: 18px;
         border-radius: 999px;
         background: linear-gradient(135deg, #111111, #8b8b8b);
       }
-
       .section { margin-bottom: 22px; }
-
       .label {
         display: block;
         font-size: 13px;
         font-weight: 600;
         margin-bottom: 10px;
       }
-
       .upload {
         display: flex;
         align-items: center;
@@ -85,12 +71,9 @@
         font-size: 14px;
         transition: background 0.2s ease;
       }
-
       .upload:hover { background: #f1f5f9; }
       input[type="file"] { display: none; }
-
       .row { margin-bottom: 14px; }
-
       .row-top {
         display: flex;
         justify-content: space-between;
@@ -98,14 +81,9 @@
         margin-bottom: 8px;
         font-size: 13px;
       }
-
       .value { color: var(--muted); }
       input[type="range"] { width: 100%; }
-
-      .select,
-      .button,
-      .color-input,
-      .hex-input {
+      .select, .button, .color-input, .hex-input {
         width: 100%;
         border-radius: 14px;
         border: 1px solid var(--line);
@@ -114,7 +92,6 @@
         padding: 0 14px;
         font-size: 14px;
       }
-
       .button {
         cursor: pointer;
         background: var(--accent);
@@ -122,26 +99,23 @@
         border: none;
         font-weight: 600;
       }
-
       .button.secondary {
         background: white;
         color: var(--text);
         border: 1px solid var(--line);
       }
-
-      .button:disabled {
-        opacity: 0.45;
-        cursor: not-allowed;
-      }
-
+      .button:disabled { opacity: 0.45; cursor: not-allowed; }
       .button-row {
         display: grid;
         grid-template-columns: 1fr 1fr 52px;
         gap: 8px;
       }
-
+      .double-button-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
       .panel { padding: 16px; }
-
       .preview {
         min-height: 640px;
         border-radius: 28px;
@@ -152,24 +126,12 @@
         overflow: hidden;
         background: #e5e5e5;
       }
-
       .preview.transparent {
-        background-image:
-          linear-gradient(45deg, #f2f2f2 25%, #e7e7e7 25%, #e7e7e7 50%, #f2f2f2 50%, #f2f2f2 75%, #e7e7e7 75%, #e7e7e7 100%);
+        background-image: linear-gradient(45deg, #f2f2f2 25%, #e7e7e7 25%, #e7e7e7 50%, #f2f2f2 50%, #f2f2f2 75%, #e7e7e7 75%, #e7e7e7 100%);
         background-size: 24px 24px;
       }
-
-      canvas {
-        max-width: 100%;
-        height: auto;
-        border-radius: 22px;
-      }
-
-      .placeholder {
-        color: var(--muted);
-        font-size: 14px;
-      }
-
+      canvas { max-width: 100%; height: auto; border-radius: 22px; }
+      .placeholder { color: var(--muted); font-size: 14px; }
       .toggle {
         display: flex;
         align-items: center;
@@ -180,46 +142,26 @@
         background: var(--soft);
         border: 1px solid var(--line);
       }
-
-      .toggle small,
-      .note { color: var(--muted); }
-
+      .toggle small, .note { color: var(--muted); }
       .custom-palette {
         padding: 14px;
         border-radius: 18px;
         background: var(--soft);
         border: 1px solid var(--line);
       }
-
-      .color-row {
-        display: grid;
-        grid-template-columns: 52px 1fr;
-        gap: 10px;
-        align-items: center;
-        margin-bottom: 12px;
-      }
-
       .color-stack {
         display: grid;
         grid-template-columns: 52px 1fr;
         gap: 10px;
         align-items: center;
       }
-
-      .color-input {
-        padding: 4px;
-        height: 44px;
-      }
-
-      .hex-input {
-        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      }
-
+      .color-input { padding: 4px; height: 44px; }
+      .hex-input { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
       .status {
         position: absolute;
         right: 16px;
         top: 16px;
-        background: rgba(255, 255, 255, 0.82);
+        background: rgba(255,255,255,.82);
         backdrop-filter: blur(8px);
         border: 1px solid var(--line);
         border-radius: 999px;
@@ -227,7 +169,6 @@
         font-size: 12px;
         color: #4b5563;
       }
-
       @media (max-width: 980px) {
         .layout { grid-template-columns: 1fr; }
         .preview { min-height: 500px; }
@@ -238,17 +179,11 @@
     <div class="app">
       <div class="layout">
         <div class="card sidebar">
-          <div class="title">
-            <div class="spark"></div>
-            <span>Halftone Tool</span>
-          </div>
+          <div class="title"><div class="spark"></div><span>Halftone Tool</span></div>
 
           <div class="section">
             <label class="label">Изображение</label>
-            <label class="upload">
-              <span>Загрузить файл</span>
-              <input id="fileInput" type="file" accept="image/*" />
-            </label>
+            <label class="upload"><span>Загрузить файл</span><input id="fileInput" type="file" accept="image/*" /></label>
           </div>
 
           <div class="section">
@@ -264,112 +199,50 @@
             </select>
           </div>
 
-          <div id="customPalette" class="section custom-palette" style="display: none;">
+          <div id="customPalette" class="section custom-palette" style="display:none;">
             <div class="row">
               <label class="label">Тёмный цвет</label>
-              <div class="color-stack">
-                <input id="customShadow" class="color-input" type="color" value="#2d1700" />
-                <input id="customShadowHex" class="hex-input" type="text" value="#2d1700" spellcheck="false" />
-              </div>
+              <div class="color-stack"><input id="customShadow" class="color-input" type="color" value="#2d1700" /><input id="customShadowHex" class="hex-input" type="text" value="#2d1700" spellcheck="false" /></div>
             </div>
             <div class="row">
               <label class="label">Средний цвет</label>
-              <div class="color-stack">
-                <input id="customMid" class="color-input" type="color" value="#d9ff1f" />
-                <input id="customMidHex" class="hex-input" type="text" value="#d9ff1f" spellcheck="false" />
-              </div>
+              <div class="color-stack"><input id="customMid" class="color-input" type="color" value="#d9ff1f" /><input id="customMidHex" class="hex-input" type="text" value="#d9ff1f" spellcheck="false" /></div>
             </div>
             <div class="row">
               <label class="label">Светлый цвет</label>
-              <div class="color-stack">
-                <input id="customLight" class="color-input" type="color" value="#fff7b0" />
-                <input id="customLightHex" class="hex-input" type="text" value="#fff7b0" spellcheck="false" />
-              </div>
+              <div class="color-stack"><input id="customLight" class="color-input" type="color" value="#fff7b0" /><input id="customLightHex" class="hex-input" type="text" value="#fff7b0" spellcheck="false" /></div>
             </div>
-            <div class="note">Можно вводить hex-коды вручную, например #B8FF2A. Тени берут первый цвет, средние тона — второй, светлые участки — третий.</div>
+            <div class="note">Можно вводить hex-коды вручную, например #B8FF2A.</div>
           </div>
 
           <div class="section">
-            <div class="row">
-              <div class="row-top"><span>Шаг точек</span><span id="dotSpacingValue" class="value">12</span></div>
-              <input id="dotSpacing" type="range" min="4" max="28" step="1" value="12" />
-            </div>
-            <div class="row">
-              <div class="row-top"><span>Размер точек</span><span id="maxDotSizeValue" class="value">10</span></div>
-              <input id="maxDotSize" type="range" min="2" max="18" step="1" value="10" />
-            </div>
-            <div class="row">
-              <div class="row-top"><span>Blur</span><span id="blurAmountValue" class="value">2</span></div>
-              <input id="blurAmount" type="range" min="0" max="10" step="0.5" value="2" />
-            </div>
-            <div class="row">
-              <div class="row-top"><span>Glow</span><span id="glowAmountValue" class="value">10</span></div>
-              <input id="glowAmount" type="range" min="0" max="30" step="1" value="10" />
-            </div>
-            <div class="row">
-              <div class="row-top"><span>Noise</span><span id="noiseAmountValue" class="value">0.08</span></div>
-              <input id="noiseAmount" type="range" min="0" max="0.4" step="0.01" value="0.08" />
-            </div>
-            <div class="row">
-              <div class="row-top"><span>Удаление светлого фона</span><span id="luminanceCutoffValue" class="value">242</span></div>
-              <input id="luminanceCutoff" type="range" min="180" max="255" step="1" value="242" />
-            </div>
-            <div class="row">
-              <div class="row-top"><span>Alpha threshold</span><span id="alphaCutoffValue" class="value">0.08</span></div>
-              <input id="alphaCutoff" type="range" min="0" max="0.5" step="0.01" value="0.08" />
-            </div>
-            <div class="row" id="backgroundGrayWrap">
-              <div class="row-top"><span>Фон</span><span id="backgroundGrayValue" class="value">228</span></div>
-              <input id="backgroundGray" type="range" min="180" max="245" step="1" value="228" />
-            </div>
+            <div class="row"><div class="row-top"><span>Шаг точек</span><span id="dotSpacingValue" class="value">12</span></div><input id="dotSpacing" type="range" min="4" max="28" step="1" value="12" /></div>
+            <div class="row"><div class="row-top"><span>Размер точек</span><span id="maxDotSizeValue" class="value">10</span></div><input id="maxDotSize" type="range" min="2" max="18" step="1" value="10" /></div>
+            <div class="row"><div class="row-top"><span>Blur</span><span id="blurAmountValue" class="value">2</span></div><input id="blurAmount" type="range" min="0" max="10" step="0.5" value="2" /></div>
+            <div class="row"><div class="row-top"><span>Glow</span><span id="glowAmountValue" class="value">10</span></div><input id="glowAmount" type="range" min="0" max="30" step="1" value="10" /></div>
+            <div class="row"><div class="row-top"><span>Noise</span><span id="noiseAmountValue" class="value">0.08</span></div><input id="noiseAmount" type="range" min="0" max="0.4" step="0.01" value="0.08" /></div>
+            <div class="row"><div class="row-top"><span>Удаление светлого фона</span><span id="luminanceCutoffValue" class="value">242</span></div><input id="luminanceCutoff" type="range" min="180" max="255" step="1" value="242" /></div>
+            <div class="row"><div class="row-top"><span>Alpha threshold</span><span id="alphaCutoffValue" class="value">0.08</span></div><input id="alphaCutoff" type="range" min="0" max="0.5" step="0.01" value="0.08" /></div>
+            <div class="row"><div class="row-top"><span>Качество экспорта</span><span id="exportScaleValue" class="value">2x</span></div><input id="exportScale" type="range" min="1" max="4" step="1" value="2" /></div>
+            <div class="row"><div class="row-top"><span>FPS анимации</span><span id="exportFpsValue" class="value">60</span></div><input id="exportFps" type="range" min="24" max="60" step="1" value="60" /></div>
+            <div class="row" id="backgroundGrayWrap"><div class="row-top"><span>Фон</span><span id="backgroundGrayValue" class="value">228</span></div><input id="backgroundGray" type="range" min="180" max="245" step="1" value="228" /></div>
           </div>
 
-          <div class="section">
-            <div class="toggle">
-              <div>
-                <div>Анимация сборки</div>
-                <small>Точки собираются в форму</small>
-              </div>
-              <input id="animationEnabled" type="checkbox" checked />
-            </div>
-          </div>
+          <div class="section"><div class="toggle"><div><div>Анимация сборки</div><small>Точки собираются в форму</small></div><input id="animationEnabled" type="checkbox" checked /></div></div>
 
           <div id="animationControls" class="section custom-palette">
-            <div class="row">
-              <div class="row-top"><span>Скорость / длительность</span><span id="animationDurationValue" class="value">2.2 s</span></div>
-              <input id="animationDuration" type="range" min="0.4" max="6" step="0.1" value="2.2" />
+            <div class="row"><div class="row-top"><span>Скорость / длительность</span><span id="animationDurationValue" class="value">2.2 s</span></div><input id="animationDuration" type="range" min="0.4" max="6" step="0.1" value="2.2" /></div>
+            <div class="row"><div class="row-top"><span>Сила разлёта точек</span><span id="scatterStrengthValue" class="value">180 px</span></div><input id="scatterStrength" type="range" min="40" max="420" step="10" value="180" /></div>
+            <div class="toggle" style="margin-bottom:12px;"><div><div>Автоповтор</div><small>Проигрывать анимацию по кругу</small></div><input id="autoReplay" type="checkbox" /></div>
+            <div class="button-row"><button id="playButton" class="button secondary">Запустить</button><button id="stopButton" class="button secondary">Стоп</button><button id="resetButton" class="button secondary">↺</button></div>
+            <div style="margin-top:10px;" class="double-button-row">
+              <button id="exportWebmButton" class="button secondary">WEBM</button>
+              <button id="exportMp4Button" class="button secondary">MP4</button>
             </div>
-            <div class="row">
-              <div class="row-top"><span>Сила разлёта точек</span><span id="scatterStrengthValue" class="value">180 px</span></div>
-              <input id="scatterStrength" type="range" min="40" max="420" step="10" value="180" />
-            </div>
-            <div class="toggle" style="margin-bottom: 12px;">
-              <div>
-                <div>Автоповтор</div>
-                <small>Проигрывать анимацию по кругу</small>
-              </div>
-              <input id="autoReplay" type="checkbox" />
-            </div>
-            <div class="button-row">
-              <button id="playButton" class="button secondary">Запустить</button>
-              <button id="stopButton" class="button secondary">Стоп</button>
-              <button id="resetButton" class="button secondary">↺</button>
-            </div>
-            <div style="margin-top: 10px;">
-              <button id="exportAnimationButton" class="button secondary">Выгрузить анимацию WEBM</button>
-            </div>
-            <div class="note" style="margin-top: 8px;">Экспорт сохраняет один прогон анимации как .webm прямо из браузера.</div>
+            <div class="note" style="margin-top:8px;">WEBM работает почти везде. MP4 — экспериментальный режим и зависит от браузера.</div>
           </div>
 
-          <div class="section">
-            <div class="toggle">
-              <div>
-                <div>Прозрачный фон</div>
-                <small>Оставить только фигуру</small>
-              </div>
-              <input id="transparentBg" type="checkbox" />
-            </div>
-          </div>
+          <div class="section"><div class="toggle"><div><div>Прозрачный фон</div><small>Оставить только фигуру</small></div><input id="transparentBg" type="checkbox" /></div></div>
 
           <button id="downloadButton" class="button">Скачать PNG</button>
         </div>
@@ -378,70 +251,27 @@
           <div id="preview" class="preview">
             <canvas id="outputCanvas"></canvas>
             <div id="placeholder" class="placeholder">Загрузи изображение</div>
-            <div id="status" class="status" style="display: none;">ready</div>
+            <div id="status" class="status" style="display:none;">ready</div>
           </div>
         </div>
       </div>
     </div>
 
     <script>
-      const state = {
-        imageSrc: null,
-        image: null,
-        points: [],
-        rafId: null,
-        animationStart: 0,
-        isAnimating: false,
-        exportInProgress: false,
-      };
+      const state = { imageSrc:null, image:null, points:[], rafId:null, animationStart:0, isAnimating:false, exportInProgress:false, displayScale:1 };
 
       const elements = {
-        fileInput: document.getElementById("fileInput"),
-        palette: document.getElementById("palette"),
-        customPalette: document.getElementById("customPalette"),
-        customShadow: document.getElementById("customShadow"),
-        customMid: document.getElementById("customMid"),
-        customLight: document.getElementById("customLight"),
-        customShadowHex: document.getElementById("customShadowHex"),
-        customMidHex: document.getElementById("customMidHex"),
-        customLightHex: document.getElementById("customLightHex"),
-        dotSpacing: document.getElementById("dotSpacing"),
-        maxDotSize: document.getElementById("maxDotSize"),
-        blurAmount: document.getElementById("blurAmount"),
-        glowAmount: document.getElementById("glowAmount"),
-        noiseAmount: document.getElementById("noiseAmount"),
-        luminanceCutoff: document.getElementById("luminanceCutoff"),
-        alphaCutoff: document.getElementById("alphaCutoff"),
-        backgroundGray: document.getElementById("backgroundGray"),
-        animationEnabled: document.getElementById("animationEnabled"),
-        animationControls: document.getElementById("animationControls"),
-        animationDuration: document.getElementById("animationDuration"),
-        scatterStrength: document.getElementById("scatterStrength"),
-        autoReplay: document.getElementById("autoReplay"),
-        transparentBg: document.getElementById("transparentBg"),
-        backgroundGrayWrap: document.getElementById("backgroundGrayWrap"),
-        playButton: document.getElementById("playButton"),
-        stopButton: document.getElementById("stopButton"),
-        resetButton: document.getElementById("resetButton"),
-        exportAnimationButton: document.getElementById("exportAnimationButton"),
-        downloadButton: document.getElementById("downloadButton"),
-        outputCanvas: document.getElementById("outputCanvas"),
-        preview: document.getElementById("preview"),
-        placeholder: document.getElementById("placeholder"),
-        status: document.getElementById("status"),
+        fileInput: document.getElementById('fileInput'), palette: document.getElementById('palette'), customPalette: document.getElementById('customPalette'),
+        customShadow: document.getElementById('customShadow'), customMid: document.getElementById('customMid'), customLight: document.getElementById('customLight'),
+        customShadowHex: document.getElementById('customShadowHex'), customMidHex: document.getElementById('customMidHex'), customLightHex: document.getElementById('customLightHex'),
+        dotSpacing: document.getElementById('dotSpacing'), maxDotSize: document.getElementById('maxDotSize'), blurAmount: document.getElementById('blurAmount'), glowAmount: document.getElementById('glowAmount'), noiseAmount: document.getElementById('noiseAmount'),
+        luminanceCutoff: document.getElementById('luminanceCutoff'), alphaCutoff: document.getElementById('alphaCutoff'), backgroundGray: document.getElementById('backgroundGray'), exportScale: document.getElementById('exportScale'), exportFps: document.getElementById('exportFps'),
+        animationEnabled: document.getElementById('animationEnabled'), animationControls: document.getElementById('animationControls'), animationDuration: document.getElementById('animationDuration'), scatterStrength: document.getElementById('scatterStrength'), autoReplay: document.getElementById('autoReplay'),
+        transparentBg: document.getElementById('transparentBg'), backgroundGrayWrap: document.getElementById('backgroundGrayWrap'), playButton: document.getElementById('playButton'), stopButton: document.getElementById('stopButton'), resetButton: document.getElementById('resetButton'), exportWebmButton: document.getElementById('exportWebmButton'), exportMp4Button: document.getElementById('exportMp4Button'), downloadButton: document.getElementById('downloadButton'), outputCanvas: document.getElementById('outputCanvas'), preview: document.getElementById('preview'), placeholder: document.getElementById('placeholder'), status: document.getElementById('status')
       };
 
       const valueTargets = {
-        dotSpacing: document.getElementById("dotSpacingValue"),
-        maxDotSize: document.getElementById("maxDotSizeValue"),
-        blurAmount: document.getElementById("blurAmountValue"),
-        glowAmount: document.getElementById("glowAmountValue"),
-        noiseAmount: document.getElementById("noiseAmountValue"),
-        luminanceCutoff: document.getElementById("luminanceCutoffValue"),
-        alphaCutoff: document.getElementById("alphaCutoffValue"),
-        backgroundGray: document.getElementById("backgroundGrayValue"),
-        animationDuration: document.getElementById("animationDurationValue"),
-        scatterStrength: document.getElementById("scatterStrengthValue"),
+        dotSpacing: document.getElementById('dotSpacingValue'), maxDotSize: document.getElementById('maxDotSizeValue'), blurAmount: document.getElementById('blurAmountValue'), glowAmount: document.getElementById('glowAmountValue'), noiseAmount: document.getElementById('noiseAmountValue'), luminanceCutoff: document.getElementById('luminanceCutoffValue'), alphaCutoff: document.getElementById('alphaCutoffValue'), backgroundGray: document.getElementById('backgroundGrayValue'), animationDuration: document.getElementById('animationDurationValue'), scatterStrength: document.getElementById('scatterStrengthValue'), exportScale: document.getElementById('exportScaleValue'), exportFps: document.getElementById('exportFpsValue')
       };
 
       function getControls() {
@@ -458,6 +288,8 @@
           luminanceCutoff: Number(elements.luminanceCutoff.value),
           alphaCutoff: Number(elements.alphaCutoff.value),
           backgroundGray: Number(elements.backgroundGray.value),
+          exportScale: Number(elements.exportScale.value),
+          exportFps: Number(elements.exportFps.value),
           animationEnabled: elements.animationEnabled.checked,
           animationDuration: Number(elements.animationDuration.value),
           scatterStrength: Number(elements.scatterStrength.value),
@@ -477,385 +309,252 @@
         valueTargets.backgroundGray.textContent = elements.backgroundGray.value;
         valueTargets.animationDuration.textContent = `${Number(elements.animationDuration.value).toFixed(1)} s`;
         valueTargets.scatterStrength.textContent = `${elements.scatterStrength.value} px`;
-        elements.customPalette.style.display = elements.palette.value === "custom" ? "block" : "none";
-        elements.animationControls.style.display = elements.animationEnabled.checked ? "block" : "none";
-        elements.backgroundGrayWrap.style.display = elements.transparentBg.checked ? "none" : "block";
-        elements.preview.classList.toggle("transparent", elements.transparentBg.checked);
-        elements.exportAnimationButton.disabled = state.exportInProgress || !state.image;
+        valueTargets.exportScale.textContent = `${elements.exportScale.value}x`;
+        valueTargets.exportFps.textContent = elements.exportFps.value;
+        elements.customPalette.style.display = elements.palette.value === 'custom' ? 'block' : 'none';
+        elements.animationControls.style.display = elements.animationEnabled.checked ? 'block' : 'none';
+        elements.backgroundGrayWrap.style.display = elements.transparentBg.checked ? 'none' : 'block';
+        elements.preview.classList.toggle('transparent', elements.transparentBg.checked);
+        elements.exportWebmButton.disabled = state.exportInProgress || !state.image;
+        elements.exportMp4Button.disabled = state.exportInProgress || !state.image;
       }
 
       function normalizeHex(value, fallback) {
-        const cleaned = String(value || "").trim();
-        const withHash = cleaned.startsWith("#") ? cleaned : `#${cleaned}`;
+        const cleaned = String(value || '').trim();
+        const withHash = cleaned.startsWith('#') ? cleaned : `#${cleaned}`;
         return /^#[0-9a-fA-F]{6}$/.test(withHash) ? withHash.toLowerCase() : fallback;
       }
+      function syncColorPair(colorInput, hexInput) { const valid = normalizeHex(hexInput.value, colorInput.value); hexInput.value = valid; colorInput.value = valid; }
+      function hexToRgb(hex) { const value = parseInt(hex.replace('#',''),16); return { r:(value>>16)&255, g:(value>>8)&255, b:value&255 }; }
+      function mixColor(a,b,t){ return { r:Math.round(a.r+(b.r-a.r)*t), g:Math.round(a.g+(b.g-a.g)*t), b:Math.round(a.b+(b.b-a.b)*t) }; }
+      function mapCustomPalette(l, shadowHex, midHex, lightHex) { const shadow=hexToRgb(shadowHex), mid=hexToRgb(midHex), light=hexToRgb(lightHex); const t=Math.max(0,Math.min(1,l/255)); return t<0.5 ? mixColor(shadow,mid,t/0.5) : mixColor(mid,light,(t-0.5)/0.5); }
+      function mapPalette(r,g,b,controls){ const l=0.2126*r+0.7152*g+0.0722*b; switch(controls.palette){ case 'warm': return {r:Math.min(255,l*1.08+28),g:Math.min(255,l*0.86+8),b:Math.min(255,l*0.45)}; case 'lime': return {r:Math.min(255,l*0.9+18),g:Math.min(255,l*1.12+36),b:Math.min(255,l*0.22)}; case 'mono': return {r:l,g:l,b:l}; case 'ocean': return {r:l*0.2,g:Math.min(255,l*0.72+22),b:Math.min(255,l*1.12+40)}; case 'candy': return {r:Math.min(255,l*1.18+34),g:Math.min(255,l*0.62+14),b:Math.min(255,l*0.95+52)}; case 'custom': return mapCustomPalette(l,controls.customShadow,controls.customMid,controls.customLight); default: return {r,g,b}; } }
+      function easeOutCubic(t){ return 1-Math.pow(1-t,3); }
+      function stopAnimation(){ if(state.rafId){ cancelAnimationFrame(state.rafId); state.rafId=null; } state.isAnimating=false; updateStatus(); }
+      function updateStatus(label){ elements.status.style.display = state.image ? 'block' : 'none'; if(label){ elements.status.textContent = label; return; } elements.status.textContent = state.exportInProgress ? 'exporting' : (state.isAnimating ? 'animating' : 'ready'); }
 
-      function syncColorPair(colorInput, hexInput) {
-        const valid = normalizeHex(hexInput.value, colorInput.value);
-        hexInput.value = valid;
-        colorInput.value = valid;
-      }
-
-      function hexToRgb(hex) {
-        const normalized = hex.replace("#", "");
-        const safeHex = normalized.length === 3
-          ? normalized.split("").map((char) => char + char).join("")
-          : normalized.padEnd(6, "0").slice(0, 6);
-        const value = parseInt(safeHex, 16);
-        return {
-          r: (value >> 16) & 255,
-          g: (value >> 8) & 255,
-          b: value & 255,
-        };
-      }
-
-      function mixColor(a, b, t) {
-        return {
-          r: Math.round(a.r + (b.r - a.r) * t),
-          g: Math.round(a.g + (b.g - a.g) * t),
-          b: Math.round(a.b + (b.b - a.b) * t),
-        };
-      }
-
-      function mapCustomPalette(luminance, shadowHex, midHex, lightHex) {
-        const shadow = hexToRgb(shadowHex);
-        const mid = hexToRgb(midHex);
-        const light = hexToRgb(lightHex);
-        const t = Math.max(0, Math.min(1, luminance / 255));
-        if (t < 0.5) return mixColor(shadow, mid, t / 0.5);
-        return mixColor(mid, light, (t - 0.5) / 0.5);
-      }
-
-      function mapPalette(r, g, b, controls) {
-        const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-
-        switch (controls.palette) {
-          case "warm":
-            return { r: Math.min(255, l * 1.08 + 28), g: Math.min(255, l * 0.86 + 8), b: Math.min(255, l * 0.45) };
-          case "lime":
-            return { r: Math.min(255, l * 0.9 + 18), g: Math.min(255, l * 1.12 + 36), b: Math.min(255, l * 0.22) };
-          case "mono":
-            return { r: l, g: l, b: l };
-          case "ocean":
-            return { r: l * 0.2, g: Math.min(255, l * 0.72 + 22), b: Math.min(255, l * 1.12 + 40) };
-          case "candy":
-            return { r: Math.min(255, l * 1.18 + 34), g: Math.min(255, l * 0.62 + 14), b: Math.min(255, l * 0.95 + 52) };
-          case "custom":
-            return mapCustomPalette(l, controls.customShadow, controls.customMid, controls.customLight);
-          default:
-            return { r, g, b };
+      function getRenderDimensions(image, scaleMultiplier=1, forExport=false){
+        if(forExport){
+          return { width: Math.max(1, Math.round(image.width * scaleMultiplier)), height: Math.max(1, Math.round(image.height * scaleMultiplier)) };
         }
+        const maxPreviewWidth = 720;
+        const previewScale = Math.min(1, maxPreviewWidth / image.width);
+        state.displayScale = previewScale;
+        return { width: Math.max(1, Math.round(image.width * previewScale)), height: Math.max(1, Math.round(image.height * previewScale)) };
       }
 
-      function easeOutCubic(t) {
-        return 1 - Math.pow(1 - t, 3);
-      }
+      function buildPoints(image, width, height, controls) {
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = width;
+        tempCanvas.height = height;
+        const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+        tempCtx.clearRect(0,0,width,height);
+        tempCtx.drawImage(image,0,0,width,height);
+        const src = tempCtx.getImageData(0,0,width,height).data;
+        const centerX = width/2, centerY = height/2;
+        const points = [];
+        const scaledDotSpacing = Math.max(1, controls.dotSpacing * (width / Math.max(1, Math.round(image.width * state.displayScale || width))));
+        const scaledMaxDot = Math.max(1, controls.maxDotSize * (width / Math.max(1, Math.round(image.width * state.displayScale || width))));
+        const scaledScatter = controls.scatterStrength * (width / Math.max(1, Math.round(image.width * state.displayScale || width)));
 
-      function stopAnimation() {
-        if (state.rafId) {
-          cancelAnimationFrame(state.rafId);
-          state.rafId = null;
+        for(let y=0; y<height; y+=scaledDotSpacing){
+          for(let x=0; x<width; x+=scaledDotSpacing){
+            const px = Math.min(width-1, Math.floor(x));
+            const py = Math.min(height-1, Math.floor(y));
+            const idx = (py*width+px)*4;
+            const r=src[idx], g=src[idx+1], b=src[idx+2], a=src[idx+3]/255;
+            const luminance = 0.2126*r + 0.7152*g + 0.0722*b;
+            const isNearWhiteBackground = a <= controls.alphaCutoff || luminance >= controls.luminanceCutoff;
+            if(isNearWhiteBackground) continue;
+            const darkness = 1 - luminance/255;
+            const radius = Math.max(0.8, scaledMaxDot * (0.25 + darkness * 0.9));
+            const jitter = scaledDotSpacing * controls.noiseAmount;
+            const targetX = x + (Math.random()-0.5)*jitter;
+            const targetY = y + (Math.random()-0.5)*jitter;
+            const mapped = mapPalette(r,g,b,controls);
+            const angle = Math.random()*Math.PI*2;
+            const distance = scaledScatter*(0.45+Math.random()*0.8);
+            const startX = centerX + Math.cos(angle)*distance + (Math.random()-0.5)*scaledScatter*0.35;
+            const startY = centerY + Math.sin(angle)*distance + (Math.random()-0.5)*scaledScatter*0.35;
+            points.push({ targetX, targetY, startX, startY, radius, r:mapped.r, g:mapped.g, b:mapped.b });
+          }
         }
-        state.isAnimating = false;
-        updateStatus();
+        return points;
       }
 
-      function updateStatus(label) {
-        elements.status.style.display = state.image ? "block" : "none";
-        if (label) {
-          elements.status.textContent = label;
-          return;
-        }
-        if (state.exportInProgress) {
-          elements.status.textContent = "exporting";
-        } else {
-          elements.status.textContent = state.isAnimating ? "animating" : "ready";
-        }
-      }
-
-      function drawFrame(progress) {
-        const controls = getControls();
-        const canvas = elements.outputCanvas;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
-
+      function renderPointsToCanvas(canvas, points, controls, progress){
+        const ctx = canvas.getContext('2d');
         const eased = easeOutCubic(progress);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        if (!controls.transparentBg) {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        if(!controls.transparentBg){
           ctx.fillStyle = `rgb(${controls.backgroundGray}, ${controls.backgroundGray}, ${controls.backgroundGray})`;
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillRect(0,0,canvas.width,canvas.height);
         }
-
         ctx.save();
-        ctx.filter = `blur(${controls.blurAmount}px)`;
-
-        for (const point of state.points) {
+        const blurScale = canvas.width / Math.max(1, elements.outputCanvas.width || canvas.width);
+        ctx.filter = `blur(${controls.blurAmount * blurScale}px)`;
+        for(const point of points){
           const x = point.startX + (point.targetX - point.startX) * eased;
           const y = point.startY + (point.targetY - point.startY) * eased;
           const radius = point.radius * (0.2 + eased * 0.8);
           const alpha = 0.15 + eased * 0.85;
-
           ctx.shadowColor = `rgba(${point.r}, ${point.g}, ${point.b}, ${0.42 * eased})`;
-          ctx.shadowBlur = controls.glowAmount;
+          ctx.shadowBlur = controls.glowAmount * blurScale;
           ctx.fillStyle = `rgba(${point.r}, ${point.g}, ${point.b}, ${alpha})`;
           ctx.beginPath();
-          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.arc(x,y,radius,0,Math.PI*2);
           ctx.fill();
         }
-
         ctx.restore();
       }
 
-      function playAnimation() {
-        if (!state.points.length) return;
+      function drawFrame(progress){
+        const controls = getControls();
+        renderPointsToCanvas(elements.outputCanvas, state.points, controls, progress);
+      }
+
+      function playAnimation(){
+        if(!state.points.length) return;
         stopAnimation();
         state.isAnimating = true;
         updateStatus();
         const controls = getControls();
         state.animationStart = performance.now();
-
-        function tick(now) {
-          const elapsed = (now - state.animationStart) / 1000;
+        function tick(now){
+          const elapsed = (now - state.animationStart)/1000;
           const progress = Math.min(1, elapsed / Math.max(0.2, controls.animationDuration));
           drawFrame(progress);
-
-          if (progress < 1) {
-            state.rafId = requestAnimationFrame(tick);
-          } else {
-            state.rafId = null;
-            state.isAnimating = false;
-            updateStatus();
-
-            if (getControls().autoReplay && !state.exportInProgress) {
-              setTimeout(() => {
-                if (getControls().autoReplay) playAnimation();
-              }, 350);
-            }
+          if(progress < 1){ state.rafId = requestAnimationFrame(tick); }
+          else {
+            state.rafId = null; state.isAnimating = false; updateStatus();
+            if(getControls().autoReplay && !state.exportInProgress){ setTimeout(()=>{ if(getControls().autoReplay) playAnimation(); }, 350); }
           }
         }
-
         state.rafId = requestAnimationFrame(tick);
       }
 
-      async function exportAnimation() {
-        if (!state.points.length || state.exportInProgress) return;
-        if (!(window.MediaRecorder && elements.outputCanvas.captureStream)) {
-          alert("В этом браузере экспорт WEBM не поддерживается. Попробуй Chrome или Edge.");
+      async function exportAnimation(format){
+        if(!state.image || !state.points.length || state.exportInProgress) return;
+        if(!(window.MediaRecorder)) {
+          alert('В этом браузере экспорт видео не поддерживается.');
           return;
         }
 
-        const mimeCandidates = [
-          "video/webm;codecs=vp9",
-          "video/webm;codecs=vp8",
-          "video/webm"
-        ];
-        const mimeType = mimeCandidates.find((type) => MediaRecorder.isTypeSupported(type)) || "video/webm";
+        const controls = getControls();
+        const mimeCandidates = format === 'mp4'
+          ? ['video/mp4;codecs=h264', 'video/mp4']
+          : ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+        const mimeType = mimeCandidates.find(type => MediaRecorder.isTypeSupported(type));
+
+        if(!mimeType){
+          alert(format === 'mp4'
+            ? 'MP4 не поддерживается в этом браузере. Лучше использовать WEBM, либо открыть страницу в Safari для теста MP4.'
+            : 'WEBM не поддерживается в этом браузере.');
+          return;
+        }
 
         stopAnimation();
         state.exportInProgress = true;
         updateReadouts();
         updateStatus();
 
-        const controls = getControls();
-        const stream = elements.outputCanvas.captureStream(60);
-        const recorder = new MediaRecorder(stream, { mimeType });
+        const { width, height } = getRenderDimensions(state.image, controls.exportScale, true);
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = width;
+        exportCanvas.height = height;
+        const exportPoints = buildPoints(state.image, width, height, controls);
+        renderPointsToCanvas(exportCanvas, exportPoints, controls, 0);
+
+        const stream = exportCanvas.captureStream(controls.exportFps);
+        const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 12000000 });
         const chunks = [];
-
-        recorder.ondataavailable = (event) => {
-          if (event.data && event.data.size > 0) chunks.push(event.data);
-        };
-
+        recorder.ondataavailable = (event) => { if(event.data && event.data.size > 0) chunks.push(event.data); };
         recorder.onstop = () => {
           const blob = new Blob(chunks, { type: mimeType });
           const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
+          const link = document.createElement('a');
           link.href = url;
-          link.download = "halftone-animation.webm";
+          link.download = format === 'mp4' ? 'halftone-animation.mp4' : 'halftone-animation.webm';
           link.click();
           setTimeout(() => URL.revokeObjectURL(url), 1000);
           state.exportInProgress = false;
           updateReadouts();
           updateStatus();
         };
-
         recorder.start();
         const start = performance.now();
         const durationMs = Math.max(200, controls.animationDuration * 1000);
-
-        function step(now) {
+        function step(now){
           const progress = Math.min(1, (now - start) / durationMs);
-          drawFrame(progress);
-          if (progress < 1) {
-            requestAnimationFrame(step);
-          } else {
-            setTimeout(() => recorder.stop(), 120);
-          }
+          renderPointsToCanvas(exportCanvas, exportPoints, controls, progress);
+          if(progress < 1) requestAnimationFrame(step);
+          else setTimeout(() => recorder.stop(), 150);
         }
-
         requestAnimationFrame(step);
       }
 
-      function buildPointsAndRender() {
-        if (!state.image) return;
-
+      function buildPointsAndRender(){
+        if(!state.image) return;
         stopAnimation();
         const controls = getControls();
-        const img = state.image;
-        const canvas = elements.outputCanvas;
-        const maxPreviewWidth = 720;
-        const previewScale = Math.min(1, maxPreviewWidth / img.width);
-        const width = Math.max(1, Math.round(img.width * previewScale));
-        const height = Math.max(1, Math.round(img.height * previewScale));
-
-        canvas.width = width;
-        canvas.height = height;
-
-        const tempCanvas = document.createElement("canvas");
-        tempCanvas.width = width;
-        tempCanvas.height = height;
-        const tempCtx = tempCanvas.getContext("2d", { willReadFrequently: true });
-        if (!tempCtx) return;
-
-        tempCtx.clearRect(0, 0, width, height);
-        tempCtx.drawImage(img, 0, 0, width, height);
-        const src = tempCtx.getImageData(0, 0, width, height).data;
-
-        const centerX = width / 2;
-        const centerY = height / 2;
-        const points = [];
-
-        for (let y = 0; y < height; y += controls.dotSpacing) {
-          for (let x = 0; x < width; x += controls.dotSpacing) {
-            const px = Math.min(width - 1, Math.floor(x));
-            const py = Math.min(height - 1, Math.floor(y));
-            const idx = (py * width + px) * 4;
-
-            const r = src[idx];
-            const g = src[idx + 1];
-            const b = src[idx + 2];
-            const a = src[idx + 3] / 255;
-            const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-            const isNearWhiteBackground = a <= controls.alphaCutoff || luminance >= controls.luminanceCutoff;
-            if (isNearWhiteBackground) continue;
-
-            const darkness = 1 - luminance / 255;
-            const radius = Math.max(0.8, controls.maxDotSize * (0.25 + darkness * 0.9));
-            const jitter = controls.dotSpacing * controls.noiseAmount;
-            const targetX = x + (Math.random() - 0.5) * jitter;
-            const targetY = y + (Math.random() - 0.5) * jitter;
-            const mapped = mapPalette(r, g, b, controls);
-            const angle = Math.random() * Math.PI * 2;
-            const distance = controls.scatterStrength * (0.45 + Math.random() * 0.8);
-            const startX = centerX + Math.cos(angle) * distance + (Math.random() - 0.5) * controls.scatterStrength * 0.35;
-            const startY = centerY + Math.sin(angle) * distance + (Math.random() - 0.5) * controls.scatterStrength * 0.35;
-
-            points.push({
-              targetX,
-              targetY,
-              startX,
-              startY,
-              radius,
-              r: mapped.r,
-              g: mapped.g,
-              b: mapped.b,
-            });
-          }
-        }
-
-        state.points = points;
-        elements.placeholder.style.display = "none";
+        const dims = getRenderDimensions(state.image, 1, false);
+        elements.outputCanvas.width = dims.width;
+        elements.outputCanvas.height = dims.height;
+        state.points = buildPoints(state.image, dims.width, dims.height, controls);
+        elements.placeholder.style.display = 'none';
         updateReadouts();
-
-        if (controls.animationEnabled) {
-          drawFrame(0);
-          playAnimation();
-        } else {
-          drawFrame(1);
-          updateStatus();
-        }
+        if(controls.animationEnabled){ drawFrame(0); playAnimation(); }
+        else { drawFrame(1); updateStatus(); }
       }
 
-      function handleFile(file) {
-        if (!file) return;
+      function handleFile(file){
+        if(!file) return;
         const reader = new FileReader();
         reader.onload = () => {
           const img = new Image();
-          img.onload = () => {
-            state.imageSrc = reader.result;
-            state.image = img;
-            buildPointsAndRender();
-          };
+          img.onload = () => { state.imageSrc = reader.result; state.image = img; buildPointsAndRender(); };
           img.src = reader.result;
         };
         reader.readAsDataURL(file);
       }
 
-      function downloadCanvas() {
-        const link = document.createElement("a");
-        link.download = elements.transparentBg.checked ? "halftone-transparent.png" : "halftone-processed.png";
-        link.href = elements.outputCanvas.toDataURL("image/png");
+      function downloadCanvas(){
+        if(!state.image) return;
+        const controls = getControls();
+        const { width, height } = getRenderDimensions(state.image, controls.exportScale, true);
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = width;
+        exportCanvas.height = height;
+        const exportPoints = buildPoints(state.image, width, height, controls);
+        renderPointsToCanvas(exportCanvas, exportPoints, controls, 1);
+        const link = document.createElement('a');
+        link.download = elements.transparentBg.checked ? 'halftone-transparent.png' : 'halftone-processed.png';
+        link.href = exportCanvas.toDataURL('image/png');
         link.click();
       }
 
-      function bindColorInputs(colorInput, hexInput) {
-        colorInput.addEventListener("input", () => {
-          hexInput.value = colorInput.value.toLowerCase();
-          updateReadouts();
-          if (state.image) buildPointsAndRender();
-        });
-
-        hexInput.addEventListener("change", () => {
-          syncColorPair(colorInput, hexInput);
-          updateReadouts();
-          if (state.image) buildPointsAndRender();
-        });
-
-        hexInput.addEventListener("blur", () => {
-          syncColorPair(colorInput, hexInput);
-          updateReadouts();
-        });
+      function bindColorInputs(colorInput, hexInput){
+        colorInput.addEventListener('input', ()=>{ hexInput.value = colorInput.value.toLowerCase(); updateReadouts(); if(state.image) buildPointsAndRender(); });
+        hexInput.addEventListener('change', ()=>{ syncColorPair(colorInput, hexInput); updateReadouts(); if(state.image) buildPointsAndRender(); });
+        hexInput.addEventListener('blur', ()=>{ syncColorPair(colorInput, hexInput); updateReadouts(); });
       }
 
-      elements.fileInput.addEventListener("change", (event) => {
-        handleFile(event.target.files && event.target.files[0]);
-      });
-
+      elements.fileInput.addEventListener('change', (event)=>handleFile(event.target.files && event.target.files[0]));
       bindColorInputs(elements.customShadow, elements.customShadowHex);
       bindColorInputs(elements.customMid, elements.customMidHex);
       bindColorInputs(elements.customLight, elements.customLightHex);
 
-      [
-        elements.palette,
-        elements.dotSpacing,
-        elements.maxDotSize,
-        elements.blurAmount,
-        elements.glowAmount,
-        elements.noiseAmount,
-        elements.luminanceCutoff,
-        elements.alphaCutoff,
-        elements.backgroundGray,
-        elements.animationEnabled,
-        elements.animationDuration,
-        elements.scatterStrength,
-        elements.autoReplay,
-        elements.transparentBg,
-      ].forEach((control) => {
-        control.addEventListener("input", () => {
-          updateReadouts();
-          if (state.image) buildPointsAndRender();
-        });
-        control.addEventListener("change", () => {
-          updateReadouts();
-          if (state.image) buildPointsAndRender();
-        });
+      [elements.palette, elements.dotSpacing, elements.maxDotSize, elements.blurAmount, elements.glowAmount, elements.noiseAmount, elements.luminanceCutoff, elements.alphaCutoff, elements.backgroundGray, elements.exportScale, elements.exportFps, elements.animationEnabled, elements.animationDuration, elements.scatterStrength, elements.autoReplay, elements.transparentBg].forEach(control => {
+        control.addEventListener('input', ()=>{ updateReadouts(); if(state.image) buildPointsAndRender(); });
+        control.addEventListener('change', ()=>{ updateReadouts(); if(state.image) buildPointsAndRender(); });
       });
 
-      elements.playButton.addEventListener("click", playAnimation);
-      elements.stopButton.addEventListener("click", stopAnimation);
-      elements.resetButton.addEventListener("click", () => drawFrame(0));
-      elements.exportAnimationButton.addEventListener("click", exportAnimation);
-      elements.downloadButton.addEventListener("click", downloadCanvas);
+      elements.playButton.addEventListener('click', playAnimation);
+      elements.stopButton.addEventListener('click', stopAnimation);
+      elements.resetButton.addEventListener('click', ()=>drawFrame(0));
+      elements.exportWebmButton.addEventListener('click', ()=>exportAnimation('webm'));
+      elements.exportMp4Button.addEventListener('click', ()=>exportAnimation('mp4'));
+      elements.downloadButton.addEventListener('click', downloadCanvas);
 
       syncColorPair(elements.customShadow, elements.customShadowHex);
       syncColorPair(elements.customMid, elements.customMidHex);
