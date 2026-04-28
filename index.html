@@ -215,7 +215,8 @@
 
           <div class="section">
             <label class="label">Изображение</label>
-            <label class="upload"><span>Загрузить файл</span><input id="fileInput" type="file" accept="image/*" /></label>
+            <label class="upload"><span>Загрузить файл</span><input id="fileInput" type="file" accept=".png,.jpg,.jpeg,.webp,.gif,.bmp,.svg,image/png,image/jpeg,image/webp,image/gif,image/bmp,image/svg+xml" /></label>
+            <div class="note" style="margin-top:8px;">Лучше всего работают PNG, JPG и WEBP. HEIC, TIFF и AVIF в некоторых браузерах могут не открываться.</div>
           </div>
 
           <div class="section">
@@ -291,6 +292,11 @@
 
     <script>
       const state = { imageSrc:null, image:null, points:[], rafId:null, animationStart:0, isAnimating:false, exportInProgress:false, displayScale:1 };
+      const SUPPORTED_FILE_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/bmp', 'image/svg+xml']);
+      const SUPPORTED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.svg'];
+      const MAX_PREVIEW_PIXELS = 3_500_000;
+      const MAX_EXPORT_PIXELS = 8_000_000;
+      const MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024;
 
       const elements = {
         fileInput: document.getElementById('fileInput'), palette: document.getElementById('palette'), customPalette: document.getElementById('customPalette'),
@@ -356,6 +362,63 @@
         const withHash = cleaned.startsWith('#') ? cleaned : `#${cleaned}`;
         return /^#[0-9a-fA-F]{6}$/.test(withHash) ? withHash.toLowerCase() : fallback;
       }
+      function setPlaceholderMessage(message){
+        elements.placeholder.textContent = message;
+        elements.placeholder.style.display = 'block';
+      }
+      function setIdleState(message){
+        stopAnimation();
+        state.image = null;
+        state.points = [];
+        elements.outputCanvas.width = 0;
+        elements.outputCanvas.height = 0;
+        setPlaceholderMessage(message);
+        updateReadouts();
+        updateStatus();
+      }
+      function showError(message){
+        console.error(message);
+        setIdleState(message);
+        alert(message);
+      }
+      function releaseImageSrc(){
+        if(state.imageSrc && state.imageSrc.startsWith('blob:')){
+          URL.revokeObjectURL(state.imageSrc);
+        }
+        state.imageSrc = null;
+      }
+      function getSafe2dContext(canvas, options){
+        const ctx = canvas.getContext('2d', options);
+        if(!ctx){
+          throw new Error('Браузер не смог создать 2D canvas-контекст.');
+        }
+        return ctx;
+      }
+      function supportsCanvasFilter(ctx){
+        return 'filter' in ctx;
+      }
+      function getScaledDimensions(width, height, maxPixels){
+        const totalPixels = width * height;
+        if(totalPixels <= maxPixels){
+          return { width, height, scaled: false };
+        }
+        const scale = Math.sqrt(maxPixels / totalPixels);
+        return {
+          width: Math.max(1, Math.round(width * scale)),
+          height: Math.max(1, Math.round(height * scale)),
+          scaled: true,
+        };
+      }
+      function isLikelySupportedFile(file){
+        if(!file) return false;
+        if(file.type && SUPPORTED_FILE_TYPES.has(file.type)) return true;
+        const lowerName = String(file.name || '').toLowerCase();
+        return SUPPORTED_EXTENSIONS.some(ext => lowerName.endsWith(ext));
+      }
+      function getFileSupportMessage(file){
+        const typeText = file.type ? ` (${file.type})` : '';
+        return `Файл "${file.name}"${typeText} может не поддерживаться этим браузером. Лучше использовать PNG, JPG или WEBP.`;
+      }
       function syncColorPair(colorInput, hexInput) { const valid = normalizeHex(hexInput.value, colorInput.value); hexInput.value = valid; colorInput.value = valid; }
       function hexToRgb(hex) { const value = parseInt(hex.replace('#',''),16); return { r:(value>>16)&255, g:(value>>8)&255, b:value&255 }; }
       function mixColor(a,b,t){ return { r:Math.round(a.r+(b.r-a.r)*t), g:Math.round(a.g+(b.g-a.g)*t), b:Math.round(a.b+(b.b-a.b)*t) }; }
@@ -367,20 +430,30 @@
 
       function getRenderDimensions(image, scaleMultiplier=1, forExport=false){
         if(forExport){
-          return { width: Math.max(1, Math.round(image.width * scaleMultiplier)), height: Math.max(1, Math.round(image.height * scaleMultiplier)) };
+          const exportDims = getScaledDimensions(
+            Math.max(1, Math.round(image.width * scaleMultiplier)),
+            Math.max(1, Math.round(image.height * scaleMultiplier)),
+            MAX_EXPORT_PIXELS
+          );
+          return { width: exportDims.width, height: exportDims.height, scaled: exportDims.scaled };
         }
         const maxPreviewWidth = Math.max(320, elements.preview.clientWidth - 24);
         const maxPreviewHeight = Math.max(320, elements.preview.clientHeight - 24);
         const previewScale = Math.min(1, maxPreviewWidth / image.width, maxPreviewHeight / image.height);
         state.displayScale = previewScale;
-        return { width: Math.max(1, Math.round(image.width * previewScale)), height: Math.max(1, Math.round(image.height * previewScale)) };
+        const previewDims = getScaledDimensions(
+          Math.max(1, Math.round(image.width * previewScale)),
+          Math.max(1, Math.round(image.height * previewScale)),
+          MAX_PREVIEW_PIXELS
+        );
+        return { width: previewDims.width, height: previewDims.height, scaled: previewDims.scaled };
       }
 
       function buildPoints(image, width, height, controls) {
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = width;
         tempCanvas.height = height;
-        const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+        const tempCtx = getSafe2dContext(tempCanvas, { willReadFrequently: true });
         tempCtx.clearRect(0,0,width,height);
         tempCtx.drawImage(image,0,0,width,height);
         const src = tempCtx.getImageData(0,0,width,height).data;
@@ -416,7 +489,7 @@
       }
 
       function renderPointsToCanvas(canvas, points, controls, progress){
-        const ctx = canvas.getContext('2d');
+        const ctx = getSafe2dContext(canvas);
         const eased = easeOutCubic(progress);
         ctx.clearRect(0,0,canvas.width,canvas.height);
         if(!controls.transparentBg){
@@ -425,7 +498,9 @@
         }
         ctx.save();
         const blurScale = canvas.width / Math.max(1, elements.outputCanvas.width || canvas.width);
-        ctx.filter = `blur(${controls.blurAmount * blurScale}px)`;
+        if(supportsCanvasFilter(ctx)){
+          ctx.filter = `blur(${controls.blurAmount * blurScale}px)`;
+        }
         for(const point of points){
           const x = point.startX + (point.targetX - point.startX) * eased;
           const y = point.startY + (point.targetY - point.startY) * eased;
@@ -491,79 +566,130 @@
         updateReadouts();
         updateStatus();
 
-        const { width, height } = getRenderDimensions(state.image, controls.exportScale, true);
-        const exportCanvas = document.createElement('canvas');
-        exportCanvas.width = width;
-        exportCanvas.height = height;
-        const exportPoints = buildPoints(state.image, width, height, controls);
-        renderPointsToCanvas(exportCanvas, exportPoints, controls, 0);
+        try {
+          const { width, height, scaled } = getRenderDimensions(state.image, controls.exportScale, true);
+          const exportCanvas = document.createElement('canvas');
+          exportCanvas.width = width;
+          exportCanvas.height = height;
+          const exportPoints = buildPoints(state.image, width, height, controls);
+          renderPointsToCanvas(exportCanvas, exportPoints, controls, 0);
 
-        const stream = exportCanvas.captureStream(controls.exportFps);
-        const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 12000000 });
-        const chunks = [];
-        recorder.ondataavailable = (event) => { if(event.data && event.data.size > 0) chunks.push(event.data); };
-        recorder.onstop = () => {
-          const blob = new Blob(chunks, { type: mimeType });
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = format === 'mp4' ? 'halftone-animation.mp4' : 'halftone-animation.webm';
-          link.click();
-          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          if(typeof exportCanvas.captureStream !== 'function'){
+            throw new Error('Этот браузер не поддерживает захват canvas в видео.');
+          }
+
+          if(scaled){
+            updateStatus('export scaled');
+          }
+
+          const stream = exportCanvas.captureStream(controls.exportFps);
+          const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 12000000 });
+          const chunks = [];
+          recorder.ondataavailable = (event) => { if(event.data && event.data.size > 0) chunks.push(event.data); };
+          recorder.onerror = () => {
+            state.exportInProgress = false;
+            updateReadouts();
+            showError('Экспорт видео завершился с ошибкой в этом браузере. Попробуйте WEBM или PNG.');
+          };
+          recorder.onstop = () => {
+            const blob = new Blob(chunks, { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = format === 'mp4' ? 'halftone-animation.mp4' : 'halftone-animation.webm';
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            state.exportInProgress = false;
+            updateReadouts();
+            updateStatus();
+          };
+          recorder.start();
+          const start = performance.now();
+          const durationMs = Math.max(200, controls.animationDuration * 1000);
+          function step(now){
+            const progress = Math.min(1, (now - start) / durationMs);
+            renderPointsToCanvas(exportCanvas, exportPoints, controls, progress);
+            if(progress < 1) requestAnimationFrame(step);
+            else setTimeout(() => recorder.stop(), 150);
+          }
+          requestAnimationFrame(step);
+        } catch (error) {
           state.exportInProgress = false;
           updateReadouts();
-          updateStatus();
-        };
-        recorder.start();
-        const start = performance.now();
-        const durationMs = Math.max(200, controls.animationDuration * 1000);
-        function step(now){
-          const progress = Math.min(1, (now - start) / durationMs);
-          renderPointsToCanvas(exportCanvas, exportPoints, controls, progress);
-          if(progress < 1) requestAnimationFrame(step);
-          else setTimeout(() => recorder.stop(), 150);
+          showError(error instanceof Error ? error.message : 'Не удалось экспортировать видео.');
         }
-        requestAnimationFrame(step);
       }
 
       function buildPointsAndRender(){
         if(!state.image) return;
-        stopAnimation();
-        const controls = getControls();
-        const dims = getRenderDimensions(state.image, 1, false);
-        elements.outputCanvas.width = dims.width;
-        elements.outputCanvas.height = dims.height;
-        state.points = buildPoints(state.image, dims.width, dims.height, controls);
-        elements.placeholder.style.display = 'none';
-        updateReadouts();
-        if(controls.animationEnabled){ drawFrame(0); playAnimation(); }
-        else { drawFrame(1); updateStatus(); }
+        try {
+          stopAnimation();
+          const controls = getControls();
+          const dims = getRenderDimensions(state.image, 1, false);
+          elements.outputCanvas.width = dims.width;
+          elements.outputCanvas.height = dims.height;
+          state.points = buildPoints(state.image, dims.width, dims.height, controls);
+          if(!state.points.length){
+            throw new Error('После обработки не осталось видимых точек. Попробуйте уменьшить "Удаление светлого фона" или загрузить более контрастную картинку.');
+          }
+          elements.placeholder.style.display = 'none';
+          updateReadouts();
+          if(dims.scaled){
+            updateStatus('preview scaled');
+          }
+          if(controls.animationEnabled){ drawFrame(0); playAnimation(); }
+          else { drawFrame(1); updateStatus(); }
+        } catch (error) {
+          showError(error instanceof Error ? error.message : 'Не удалось обработать изображение.');
+        }
       }
 
       function handleFile(file){
         if(!file) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-          const img = new Image();
-          img.onload = () => { state.imageSrc = reader.result; state.image = img; buildPointsAndRender(); };
-          img.src = reader.result;
+        if(file.size > MAX_FILE_SIZE_BYTES){
+          showError(`Файл слишком большой: ${(file.size / (1024 * 1024)).toFixed(1)} MB. Лучше выбрать изображение до 25 MB.`);
+          return;
+        }
+        if(!isLikelySupportedFile(file)){
+          showError(getFileSupportMessage(file));
+          return;
+        }
+
+        releaseImageSrc();
+        setPlaceholderMessage('Загрузка изображения...');
+        updateStatus('loading');
+
+        const objectUrl = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          state.imageSrc = objectUrl;
+          state.image = img;
+          buildPointsAndRender();
         };
-        reader.readAsDataURL(file);
+        img.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          showError(`Браузер не смог декодировать "${file.name}". Попробуйте сохранить картинку как PNG, JPG или WEBP.`);
+        };
+        img.src = objectUrl;
       }
 
       function downloadCanvas(){
         if(!state.image) return;
-        const controls = getControls();
-        const { width, height } = getRenderDimensions(state.image, controls.exportScale, true);
-        const exportCanvas = document.createElement('canvas');
-        exportCanvas.width = width;
-        exportCanvas.height = height;
-        const exportPoints = buildPoints(state.image, width, height, controls);
-        renderPointsToCanvas(exportCanvas, exportPoints, controls, 1);
-        const link = document.createElement('a');
-        link.download = elements.transparentBg.checked ? 'halftone-transparent.png' : 'halftone-processed.png';
-        link.href = exportCanvas.toDataURL('image/png');
-        link.click();
+        try {
+          const controls = getControls();
+          const { width, height } = getRenderDimensions(state.image, controls.exportScale, true);
+          const exportCanvas = document.createElement('canvas');
+          exportCanvas.width = width;
+          exportCanvas.height = height;
+          const exportPoints = buildPoints(state.image, width, height, controls);
+          renderPointsToCanvas(exportCanvas, exportPoints, controls, 1);
+          const link = document.createElement('a');
+          link.download = elements.transparentBg.checked ? 'halftone-transparent.png' : 'halftone-processed.png';
+          link.href = exportCanvas.toDataURL('image/png');
+          link.click();
+        } catch (error) {
+          showError(error instanceof Error ? error.message : 'Не удалось скачать PNG.');
+        }
       }
 
       function bindColorInputs(colorInput, hexInput){
